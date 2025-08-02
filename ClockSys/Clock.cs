@@ -12,7 +12,7 @@ namespace ATmegaSim.ClockSys
         private List<IClockSink> subscribers = new List<IClockSink>();
 
         System.Timers.Timer execTimer;
-        public Clock(int freq = 2) // 2 Hz 
+        public Clock(double freq = 1) // 1 Hz 
         {
             execTimer = new System.Timers.Timer();
             execTimer.Interval = 1000 / freq;   // in ms

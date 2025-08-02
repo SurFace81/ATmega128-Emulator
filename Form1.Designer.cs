@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.firmPathText = new System.Windows.Forms.TextBox();
             this.openFirmDlg = new System.Windows.Forms.OpenFileDialog();
             this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
@@ -42,16 +41,9 @@
             this.runBtn = new System.Windows.Forms.ToolStripButton();
             this.stopBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.firmPathText = new System.Windows.Forms.ToolStripLabel();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // firmPathText
-            // 
-            this.firmPathText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.firmPathText.Location = new System.Drawing.Point(995, 0);
-            this.firmPathText.Name = "firmPathText";
-            this.firmPathText.Size = new System.Drawing.Size(301, 22);
-            this.firmPathText.TabIndex = 0;
             // 
             // openFirmDlg
             // 
@@ -61,9 +53,9 @@
             // 
             this.dockPanel.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.dockPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dockPanel.Location = new System.Drawing.Point(0, 27);
+            this.dockPanel.Location = new System.Drawing.Point(0, 31);
             this.dockPanel.Name = "dockPanel";
-            this.dockPanel.Size = new System.Drawing.Size(1296, 685);
+            this.dockPanel.Size = new System.Drawing.Size(1296, 681);
             this.dockPanel.TabIndex = 7;
             // 
             // toolStripDropDownButton1
@@ -72,10 +64,11 @@
             this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openFileMenuItem,
             this.exitMenuItem});
+            this.toolStripDropDownButton1.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
             this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-            this.toolStripDropDownButton1.Size = new System.Drawing.Size(46, 24);
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(54, 28);
             this.toolStripDropDownButton1.Text = "File";
             // 
             // openFileMenuItem
@@ -93,7 +86,7 @@
             // 
             this.exitMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.Size = new System.Drawing.Size(167, 26);
+            this.exitMenuItem.Size = new System.Drawing.Size(224, 26);
             this.exitMenuItem.Text = "Exit";
             this.exitMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
             // 
@@ -104,17 +97,18 @@
             this.registersMenuItem,
             this.memoryMenuItem,
             this.disasmMenuItem});
+            this.toolStripDropDownButton2.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.toolStripDropDownButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton2.Image")));
             this.toolStripDropDownButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripDropDownButton2.Name = "toolStripDropDownButton2";
-            this.toolStripDropDownButton2.Size = new System.Drawing.Size(55, 28);
+            this.toolStripDropDownButton2.Size = new System.Drawing.Size(54, 28);
             this.toolStripDropDownButton2.Text = "View";
             // 
             // registersMenuItem
             // 
             this.registersMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.registersMenuItem.Name = "registersMenuItem";
-            this.registersMenuItem.Size = new System.Drawing.Size(167, 26);
+            this.registersMenuItem.Size = new System.Drawing.Size(224, 26);
             this.registersMenuItem.Text = "Registers";
             this.registersMenuItem.Click += new System.EventHandler(this.registersMenuItem_Click);
             // 
@@ -122,7 +116,7 @@
             // 
             this.memoryMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.memoryMenuItem.Name = "memoryMenuItem";
-            this.memoryMenuItem.Size = new System.Drawing.Size(167, 26);
+            this.memoryMenuItem.Size = new System.Drawing.Size(224, 26);
             this.memoryMenuItem.Text = "Memory";
             this.memoryMenuItem.Click += new System.EventHandler(this.memoryMenuItem_Click);
             // 
@@ -130,7 +124,7 @@
             // 
             this.disasmMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.disasmMenuItem.Name = "disasmMenuItem";
-            this.disasmMenuItem.Size = new System.Drawing.Size(167, 26);
+            this.disasmMenuItem.Size = new System.Drawing.Size(224, 26);
             this.disasmMenuItem.Text = "Disassembly";
             this.disasmMenuItem.Click += new System.EventHandler(this.disasmMenuItem_Click);
             // 
@@ -146,6 +140,7 @@
             // stopBtn
             // 
             this.stopBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.stopBtn.Enabled = false;
             this.stopBtn.Image = ((System.Drawing.Image)(resources.GetObject("stopBtn.Image")));
             this.stopBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stopBtn.Name = "stopBtn";
@@ -159,12 +154,22 @@
             this.toolStripDropDownButton1,
             this.toolStripDropDownButton2,
             this.runBtn,
-            this.stopBtn});
+            this.stopBtn,
+            this.firmPathText});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1296, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(1296, 31);
             this.toolStrip1.TabIndex = 6;
             this.toolStrip1.Text = "mainToolStrip";
+            // 
+            // firmPathText
+            // 
+            this.firmPathText.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.firmPathText.AutoSize = false;
+            this.firmPathText.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.firmPathText.Name = "firmPathText";
+            this.firmPathText.Size = new System.Drawing.Size(500, 28);
+            this.firmPathText.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // Form1
             // 
@@ -172,11 +177,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1296, 712);
             this.Controls.Add(this.dockPanel);
-            this.Controls.Add(this.firmPathText);
             this.Controls.Add(this.toolStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "ATmega128";
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -185,8 +189,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.TextBox firmPathText;
         private System.Windows.Forms.OpenFileDialog openFirmDlg;
         private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel;
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
@@ -199,6 +201,7 @@
         private System.Windows.Forms.ToolStripButton runBtn;
         private System.Windows.Forms.ToolStripButton stopBtn;
         private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripLabel firmPathText;
     }
 }
 

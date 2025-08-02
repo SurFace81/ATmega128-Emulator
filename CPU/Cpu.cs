@@ -14,7 +14,7 @@ namespace ATmegaSim.CPU
         private byte[] flashMemory = new byte[FLASH_SIZE];
         private int firmSize;
 
-        public struct SREG
+        public struct sreg
         {
             bool C; // Carry flag
             bool Z; // Zero result in an arithmetic or logic operation
@@ -28,6 +28,35 @@ namespace ATmegaSim.CPU
         public static byte[] R = new byte[32];  // Base registers R0 - R31
         public static ushort PC { get; set; }   // Program Counter
 
+        public static ushort X
+        {
+            get => (ushort)((R[27] << 8) | R[26]);
+            set
+            {
+                R[27] = (byte)(value >> 8);
+                R[26] = (byte)(value & 0xFF);
+            }
+        }
+
+        public static ushort Y
+        {
+            get => (ushort)((R[29] << 8) | R[28]);
+            set
+            {
+                R[29] = (byte)(value >> 8);
+                R[28] = (byte)(value & 0xFF);
+            }
+        }
+
+        public static ushort Z
+        {
+            get => (ushort)((R[31] << 8) | R[30]);
+            set
+            {
+                R[31] = (byte)(value >> 8);
+                R[30] = (byte)(value & 0xFF);
+            }
+        }
 
         public bool LoadFirm(List<byte> firmFile)
         {
@@ -71,7 +100,7 @@ namespace ATmegaSim.CPU
             InvokeOnClockCompleted();
         }
 
-        public event EventHandler<EventArgs> OnClockCompleted;
+        public static event EventHandler<EventArgs> OnClockCompleted;
         public void InvokeOnClockCompleted()
         {
             EventHandler<EventArgs> handler = OnClockCompleted;
