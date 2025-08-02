@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ATmegaSim.CPU
@@ -70,10 +71,25 @@ namespace ATmegaSim.CPU
             return true;
         }
 
-        public void Step(ushort opcode)
+        public void Step()
         {
-            ExecInstruction(opcode);
-            PC += 2;
+            ExecInstruction((ushort)((flashMemory[Cpu.PC + 1] << 8) | flashMemory[Cpu.PC]));
+            Cpu.PC += 1;
+        }
+
+        public void Reset()
+        {
+            Cpu.PC = 0;
+            Cpu.SREG.C = false;
+            Cpu.SREG.Z = false;
+            Cpu.SREG.N = false;
+            Cpu.SREG.V = false;
+            Cpu.SREG.S = false;
+            Cpu.SREG.H = false;
+            Cpu.SREG.T = false;
+            Cpu.SREG.I = false;
+            for (int i = 0; i < R.Length; i++)
+                Cpu.R[i] = 0;
         }
 
         private void ExecInstruction(ushort opcode)
@@ -86,6 +102,10 @@ namespace ATmegaSim.CPU
             {
                 Commands.Ldi(opcode);
             }
+            if (((opcode & 0xFC00) >> 10) == 0b100111)
+            {
+                Commands.Mul(opcode);
+            }
         }
 
         public void OnClock()
@@ -94,6 +114,7 @@ namespace ATmegaSim.CPU
             Cpu.PC += 2;
             if (Cpu.PC >= firmSize)
             {
+                Reset();
                 Cpu.PC = 0;
             }
 

@@ -41,5 +41,22 @@ namespace ATmegaSim.CPU
 
             Cpu.R[d] = (byte)k;
         }
+
+        public static void Mul(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x1F;
+            int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
+
+            byte Rd = Cpu.R[d];
+            byte Rr = Cpu.R[r];
+            ushort R = (ushort)(Rd * Rr);
+
+            Cpu.R[0] = (byte)(R & 0xFF);
+            Cpu.R[1] = (byte)((R >> 8) & 0xFF);
+
+            // Flags
+            Cpu.SREG.C = ((Cpu.R[1] & 0x80) != 0);
+            Cpu.SREG.Z = (R == 0);
+        }
     }
 }

@@ -95,6 +95,10 @@ namespace ATmegaSim.UI
             {
                 return Disassembler.Ldi(opcode);
             }
+            if (((opcode & 0xFC00) >> 10) == 0b100111)
+            {
+                return Disassembler.Mul(opcode);
+            }
 
             return "???";
         }

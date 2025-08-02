@@ -23,5 +23,13 @@ namespace ATmegaSim.CPU
 
             return $"LDI R{d}, 0x{k:X2}";
         }
+
+        public static string Mul(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x1F;
+            int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
+
+            return $"MUL R{d}, R{r}";
+        }
     }
 }
