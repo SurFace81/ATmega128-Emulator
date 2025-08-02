@@ -26,6 +26,11 @@ namespace ATmegaSim.UI
         {
             this.firm = firm;
 
+            firmTextBox.Clear();
+            firmTextBox.AppendText("Address   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F | ASCII\n");
+            firmTextBox.AppendText("-----------------------------------------------------------|---------\n");
+
+
             for (int i = 0; i < firm.Count; i += BYTES_PER_ROW)
             {
                 firmTextBox.AppendText($"{i.ToString("X8")}: ");
@@ -77,7 +82,7 @@ namespace ATmegaSim.UI
             }
 
             progPntr = pp;
-            int rowIndex = pp / BYTES_PER_ROW;
+            int rowIndex = pp / BYTES_PER_ROW + 2;
             int byteIndexInRow = pp % BYTES_PER_ROW;
 
             Invoke((MethodInvoker)delegate

@@ -8,6 +8,6 @@ namespace ATmegaSim.ClockSys
 {
     public interface IClockSink
     {
-        void OnClock(int cycles);
+        void OnClock();
     }
 }

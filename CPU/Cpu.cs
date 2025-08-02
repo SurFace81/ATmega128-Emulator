@@ -1,13 +1,17 @@
-﻿using System;
+﻿using ATmegaSim.ClockSys;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ATmegaSim.CPU
 {
-    public class Cpu
+    public class Cpu : IClockSink
     {
+        private List<byte> firmFile = new List<byte>();
+
         public struct SREG
         {
             bool C; // Carry flag
@@ -21,6 +25,11 @@ namespace ATmegaSim.CPU
         }
         public static byte[] R = new byte[32];  // Base registers R0 - R31
         public static ushort PC { get; set; }   // Program Counter
+
+        public Cpu(List<byte> firmFile)
+        {
+            this.firmFile = firmFile;
+        }
 
         public void Step(ushort opcode)
         {
@@ -38,6 +47,25 @@ namespace ATmegaSim.CPU
             {
                 Commands.Ldi(opcode);
             }
+        }
+
+        public void OnClock()
+        {
+            ExecInstruction((ushort)((firmFile[Cpu.PC + 1] << 8) | firmFile[Cpu.PC])); // little-endian byte order
+            Cpu.PC += 2;
+            if (Cpu.PC >= firmFile.Count)
+            {
+                Cpu.PC = 0;
+            }
+
+            InvokeOnClockCompleted();
+        }
+
+        public event EventHandler<EventArgs> OnClockCompleted;
+        public void InvokeOnClockCompleted()
+        {
+            EventHandler<EventArgs> handler = OnClockCompleted;
+            if (handler != null) handler(this, EventArgs.Empty);
         }
     }
 }

@@ -11,18 +11,38 @@ namespace ATmegaSim.ClockSys
         public ulong TotalCycles { get; private set; } = 0;
         private List<IClockSink> subscribers = new List<IClockSink>();
 
+        System.Timers.Timer execTimer;
+        public Clock(int freq = 2) // 2 Hz 
+        {
+            execTimer = new System.Timers.Timer(freq);
+            execTimer.Interval = 1000 / freq;   // in ms
+            execTimer.Elapsed += Tick;
+            execTimer.AutoReset = true;
+        }
+
+        public void Tick(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            foreach (var s in subscribers)
+            {
+                s.OnClock();
+            }
+        }
+
         public void Register(IClockSink sink)
         {
             subscribers.Add(sink);
         }
 
-        public void Tick(int cycles)
+        public void Start()
         {
-            TotalCycles += (ulong)cycles;
-            foreach (var s in subscribers)
-            {
-                s.OnClock(cycles);
-            }                
+            execTimer.Enabled = true;
+            execTimer.Start();
+        }
+
+        public void Stop()
+        {
+            execTimer.Enabled = false;
+            execTimer.Stop();
         }
     }
 }

@@ -49,7 +49,7 @@ namespace ATmegaSim
         }
     }
 
-    public class HexLine
+    internal class HexLine
     {
         public byte len { get; private set; }
         public ushort address { get; private set; } // Изменил на ushort, т.к. address всегда положительный
