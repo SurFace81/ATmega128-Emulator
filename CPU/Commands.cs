@@ -15,10 +15,23 @@ namespace ATmegaSim.CPU
 
             byte Rd = Cpu.R[d];
             byte Rr = Cpu.R[r];
-            Cpu.R[d] = (byte)(Rd + Rr);
+            byte R = (byte)(Rd + Rr);
+            Cpu.R[d] = R;
 
             // Flags
-            // ...
+            bool Rd3 = ((Rd & (1 << 3)) != 0);
+            bool Rr3 = ((Rr & (1 << 3)) != 0);
+            bool R3  = ((R  & (1 << 3)) != 0);
+            bool Rd7 = ((Rd & (1 << 7)) != 0);
+            bool Rr7 = ((Rr & (1 << 7)) != 0);
+            bool R7  = ((R  & (1 << 7)) != 0);
+
+            Cpu.SREG.H = (Rd3 && Rr3) || (Rr3 && !R3) || (!R3 && Rd3);
+            Cpu.SREG.V = (Rd7 && Rr7 && !R7) || (!Rd7 && !Rr7 && R7);
+            Cpu.SREG.N = R7;
+            Cpu.SREG.S = Cpu.SREG.N ^ Cpu.SREG.V;
+            Cpu.SREG.Z = (R == 0);
+            Cpu.SREG.C = (Rd7 && Rr7) || (Rr7 && !R7) || (!R7 && Rd7);
         }
 
         public static void Ldi(ushort opcode)

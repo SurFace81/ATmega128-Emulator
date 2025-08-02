@@ -8,7 +8,7 @@ namespace ATmegaSim
 {
     public class HexParser
     {
-        public static List<byte> FirmFile { get; private set; } = new List<byte>();
+        public static List<byte> FirmFile = new List<byte>();
         private static uint _baseLinearAddress = 0;
 
         public static void Parse(string path)

@@ -84,6 +84,7 @@
     <Compile Include="ClockSys\IClockSink.cs" />
     <Compile Include="CPU\Commands.cs" />
     <Compile Include="CPU\Cpu.cs" />
+    <Compile Include="CPU\Disassembler.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -99,17 +100,17 @@
     <Compile Include="UI\DisassemblyView.Designer.cs">
       <DependentUpon>DisassemblyView.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\HexViewer.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UI\HexViewer.Designer.cs">
-      <DependentUpon>HexViewer.cs</DependentUpon>
-    </Compile>
     <Compile Include="UI\MemoryView.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\MemoryView.Designer.cs">
       <DependentUpon>MemoryView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ReadOnlyRichTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\ReadOnlyRichTextBox.Designer.cs">
+      <DependentUpon>ReadOnlyRichTextBox.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\RegistersView.cs">
       <SubType>Form</SubType>
@@ -132,11 +133,11 @@
     <EmbeddedResource Include="UI\DisassemblyView.resx">
       <DependentUpon>DisassemblyView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\HexViewer.resx">
-      <DependentUpon>HexViewer.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="UI\MemoryView.resx">
       <DependentUpon>MemoryView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ReadOnlyRichTextBox.resx">
+      <DependentUpon>ReadOnlyRichTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\RegistersView.resx">
       <DependentUpon>RegistersView.cs</DependentUpon>

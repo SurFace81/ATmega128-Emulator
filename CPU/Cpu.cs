@@ -14,16 +14,16 @@ namespace ATmegaSim.CPU
         private byte[] flashMemory = new byte[FLASH_SIZE];
         private int firmSize;
 
-        public struct sreg
+        public struct SREG
         {
-            bool C; // Carry flag
-            bool Z; // Zero result in an arithmetic or logic operation
-            bool N; // Negative result in an arithmetic or logic operation
-            bool V; // Two's Complement Overflow Flag V supports two's complement arithmetic (?)
-            bool S; // Sgin bit
-            bool H; // Half carry in some arithmetic operations
-            bool T; // Bit Copy Storage
-            bool I; // Global Interrupt Enable
+            public static bool C; // Carry flag
+            public static bool Z; // Zero result in an arithmetic or logic operation
+            public static bool N; // Negative result in an arithmetic or logic operation
+            public static bool V; // Two's Complement Overflow Flag V supports two's complement arithmetic (?)
+            public static bool S; // Sgin bit
+            public static bool H; // Half carry in some arithmetic operations
+            public static bool T; // Bit Copy Storage
+            public static bool I; // Global Interrupt Enable
         }
         public static byte[] R = new byte[32];  // Base registers R0 - R31
         public static ushort PC { get; set; }   // Program Counter

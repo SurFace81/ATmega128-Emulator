@@ -1,6 +1,6 @@
 ﻿namespace ATmegaSim.UI
 {
-    partial class DisassemblyView
+    partial class ReadOnlyRichTextBox
     {
         /// <summary> 
         /// Обязательная переменная конструктора.
@@ -28,39 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.disasmTextBox = new ATmegaSim.UI.ReadOnlyRichTextBox();
             this.SuspendLayout();
             // 
-            // disasmTextBox
+            // ReadOnlyRichTextBox
             // 
-            this.disasmTextBox.DetectUrls = false;
-            this.disasmTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.disasmTextBox.Font = new System.Drawing.Font("Consolas", 9F);
-            this.disasmTextBox.Location = new System.Drawing.Point(0, 0);
-            this.disasmTextBox.Name = "disasmTextBox";
-            this.disasmTextBox.ReadOnly = true;
-            this.disasmTextBox.ShortcutsEnabled = false;
-            this.disasmTextBox.Size = new System.Drawing.Size(382, 526);
-            this.disasmTextBox.TabIndex = 0;
-            this.disasmTextBox.TabStop = false;
-            this.disasmTextBox.Text = "";
-            this.disasmTextBox.WordWrap = false;
-            // 
-            // DisassemblyView
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(382, 526);
-            this.Controls.Add(this.disasmTextBox);
-            this.Name = "DisassemblyView";
-            this.ShowIcon = false;
-            this.Text = "Disassembly";
+            this.Font = new System.Drawing.Font("Roboto", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Name = "ReadOnlyRichTextBox";
+            this.Size = new System.Drawing.Size(131, 141);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private ReadOnlyRichTextBox disasmTextBox;
     }
 }

@@ -28,18 +28,12 @@ namespace ATmegaSim.UI
         {
             InitializeComponent();
             numFormatCb.SelectedIndex = numSystems["HEX"];
-            Cpu.OnClockCompleted += Cpu_OnClockCompleted;
 
             rows = new BindingList<RegisterItem>();
             regsGridView.DataSource = rows;
         }
 
-        private void Cpu_OnClockCompleted(object sender, EventArgs e)
-        {
-            UpdateRegisters();
-        }
-
-        private void UpdateRegisters()
+        public void UpdateRegisters()
         {
             try
             {
@@ -56,9 +50,9 @@ namespace ATmegaSim.UI
                     rows.Add(new RegisterItem { Name = "X", Value = FormatToString(Cpu.X, 4) });
                     rows.Add(new RegisterItem { Name = "Y", Value = FormatToString(Cpu.Y, 4) });
                     rows.Add(new RegisterItem { Name = "Z", Value = FormatToString(Cpu.Z, 4) });
-                    // SREG
+                    rows.Add(new RegisterItem { Name = "SREG", Value = "0b" + Convert.ToString(GetSreg(), 2).PadLeft(8, '0') }); // Always in binary format
                     // SP
-                    rows.Add(new RegisterItem { Name = "PC", Value = FormatToString(Cpu.PC, 4) });
+                    rows.Add(new RegisterItem { Name = "PC", Value = FormatToString((uint)(Cpu.PC / 2), 4) });
                     // CYCLES
                     for (int i = 0; i < Cpu.R.Length; i++)
                     {
@@ -78,6 +72,21 @@ namespace ATmegaSim.UI
                 });
             }
             catch { }
+        }
+
+        private byte GetSreg()
+        {
+            byte sreg = 0;
+            sreg |= (byte)(Cpu.SREG.C ? 1 << 0 : 0);
+            sreg |= (byte)(Cpu.SREG.Z ? 1 << 1 : 0);
+            sreg |= (byte)(Cpu.SREG.N ? 1 << 2 : 0);
+            sreg |= (byte)(Cpu.SREG.V ? 1 << 3 : 0);
+            sreg |= (byte)(Cpu.SREG.S ? 1 << 4 : 0);
+            sreg |= (byte)(Cpu.SREG.H ? 1 << 5 : 0);
+            sreg |= (byte)(Cpu.SREG.T ? 1 << 6 : 0);
+            sreg |= (byte)(Cpu.SREG.I ? 1 << 7 : 0);
+
+            return sreg;
         }
 
         private string FormatToString(uint num, int size = 2)

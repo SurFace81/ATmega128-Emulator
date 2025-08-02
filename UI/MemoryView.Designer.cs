@@ -28,25 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.hexViewer = new ATmegaSim.UI.HexViewer();
+            this.firmTextBox = new ATmegaSim.UI.ReadOnlyRichTextBox();
             this.SuspendLayout();
             // 
-            // hexViewer
+            // firmTextBox
             // 
-            this.hexViewer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hexViewer.Font = new System.Drawing.Font("Roboto", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.hexViewer.Location = new System.Drawing.Point(0, 0);
-            this.hexViewer.Margin = new System.Windows.Forms.Padding(4);
-            this.hexViewer.Name = "hexViewer";
-            this.hexViewer.Size = new System.Drawing.Size(659, 546);
-            this.hexViewer.TabIndex = 0;
+            this.firmTextBox.DetectUrls = false;
+            this.firmTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.firmTextBox.Font = new System.Drawing.Font("Consolas", 9F);
+            this.firmTextBox.Location = new System.Drawing.Point(0, 0);
+            this.firmTextBox.Name = "firmTextBox";
+            this.firmTextBox.ReadOnly = true;
+            this.firmTextBox.ShortcutsEnabled = false;
+            this.firmTextBox.Size = new System.Drawing.Size(659, 546);
+            this.firmTextBox.TabIndex = 1;
+            this.firmTextBox.TabStop = false;
+            this.firmTextBox.Text = "";
+            this.firmTextBox.WordWrap = false;
             // 
             // MemoryView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(659, 546);
-            this.Controls.Add(this.hexViewer);
+            this.Controls.Add(this.firmTextBox);
             this.Name = "MemoryView";
             this.ShowIcon = false;
             this.Text = "Memory";
@@ -56,6 +61,6 @@
 
         #endregion
 
-        private HexViewer hexViewer;
+        private ReadOnlyRichTextBox firmTextBox;
     }
 }

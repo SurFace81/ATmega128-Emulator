@@ -2,7 +2,7 @@
 using ATmegaSim.CPU;
 using ATmegaSim.UI;
 using System;
-using System.Threading;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -13,26 +13,52 @@ namespace ATmegaSim
         Cpu atmega128;
         Clock systemClock;
 
-        MemoryView memView;
-        RegistersView regsView;
-        DisassemblyView disView;
+        List<MemoryView> memViews = new List<MemoryView>();
+        List<RegistersView> regsViews = new List<RegistersView>();
+        List<DisassemblyView> disViews = new List<DisassemblyView>();
 
         public Form1()
         {
             InitializeComponent();
             dockPanel.Theme = new VS2015LightTheme();
-            memView = new MemoryView();
-            memView.Show(dockPanel, DockState.Document);
-            memView.SetProgCntr(0);
-            regsView = new RegistersView();
-            regsView.Show(dockPanel, DockState.DockRight);
+
+            var mv = new MemoryView();
+            mv.FormClosed += Mv_FormClosed;
+            memViews.Add(mv);
+            memViews[memViews.Count - 1].Show(dockPanel, DockState.Document);
+            memViews[memViews.Count - 1].SetProgCntr(0);
+
+            var rv = new RegistersView();
+            rv.FormClosed += Rv_FormClosed;
+            regsViews.Add(rv);
+            regsViews[regsViews.Count - 1].Show(dockPanel, DockState.DockRight);
 
             systemClock = new Clock();
         }
 
+        private void Dv_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            disViews.Remove((DisassemblyView)sender);
+        }
+
+        private void Rv_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            regsViews.Remove((RegistersView)sender);
+        }
+
+        private void Mv_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            memViews.Remove((MemoryView)sender);
+        }
+
         private void Atmega128_OnClockCompleted(object sender, EventArgs e)
         {
-            memView.SetProgCntr(Cpu.PC);
+            foreach (var regsView in regsViews)
+                regsView.UpdateRegisters();
+            foreach (var memView in memViews)
+                memView.SetProgCntr(Cpu.PC);
+            foreach (var disView in disViews)
+                disView.SetProgCntr(Cpu.PC);
         }
 
         private void runBtn_Click(object sender, EventArgs e)
@@ -70,27 +96,44 @@ namespace ATmegaSim
                 Cpu.OnClockCompleted += Atmega128_OnClockCompleted;
                 systemClock.Register(atmega128);
 
-                memView.DisplayFirm(HexParser.FirmFile);
+                foreach (var memView in memViews)
+                    memView.DisplayFirm(HexParser.FirmFile);
+                foreach (var disView in disViews)
+                    disView.DisplayDisasm(HexParser.FirmFile);
             }
+        }
+
+        private void closeMenuItem_Click(object sender, EventArgs e)
+        {
+            HexParser.FirmFile = new List<byte>();
+
+            foreach (var memView in memViews)
+                memView.DisplayFirm(HexParser.FirmFile);
         }
 
         private void registersMenuItem_Click(object sender, EventArgs e)
         {
-            regsView = new RegistersView();
-            regsView.Show(dockPanel, DockState.DockRight);
+            var rv = new RegistersView();
+            rv.FormClosed += Rv_FormClosed;
+            regsViews.Add(rv);
+            regsViews[regsViews.Count - 1].Show(dockPanel, DockState.DockRight);
         }
 
         private void memoryMenuItem_Click(object sender, EventArgs e)
         {
-            memView = new MemoryView();
-            memView.Show(dockPanel, DockState.DockRight);
-            memView.DisplayFirm(HexParser.FirmFile);
+            var mv = new MemoryView();
+            mv.FormClosed += Mv_FormClosed;
+            memViews.Add(mv);
+            memViews[memViews.Count - 1].Show(dockPanel, DockState.DockRight);
+            memViews[memViews.Count - 1].DisplayFirm(HexParser.FirmFile);
         }
 
         private void disasmMenuItem_Click(object sender, EventArgs e)
         {
-            disView = new DisassemblyView();
-            disView.Show(dockPanel, DockState.DockRight);
+            var dv = new DisassemblyView();
+            dv.FormClosed += Dv_FormClosed;
+            disViews.Add(dv);
+            disViews[disViews.Count - 1].Show(dockPanel, DockState.DockRight);
         }
     }
 }

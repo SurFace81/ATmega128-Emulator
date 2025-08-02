@@ -33,6 +33,7 @@
             this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.openFileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripDropDownButton2 = new System.Windows.Forms.ToolStripDropDownButton();
             this.registersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,7 +56,7 @@
             this.dockPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dockPanel.Location = new System.Drawing.Point(0, 31);
             this.dockPanel.Name = "dockPanel";
-            this.dockPanel.Size = new System.Drawing.Size(1296, 681);
+            this.dockPanel.Size = new System.Drawing.Size(1134, 637);
             this.dockPanel.TabIndex = 7;
             // 
             // toolStripDropDownButton1
@@ -63,6 +64,7 @@
             this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openFileMenuItem,
+            this.closeMenuItem,
             this.exitMenuItem});
             this.toolStripDropDownButton1.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
@@ -82,11 +84,20 @@
             this.openFileMenuItem.Text = "Open";
             this.openFileMenuItem.Click += new System.EventHandler(this.openFileMenuItem_Click);
             // 
+            // closeMenuItem
+            // 
+            this.closeMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.closeMenuItem.Name = "closeMenuItem";
+            this.closeMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F4)));
+            this.closeMenuItem.Size = new System.Drawing.Size(180, 26);
+            this.closeMenuItem.Text = "Close";
+            this.closeMenuItem.Click += new System.EventHandler(this.closeMenuItem_Click);
+            // 
             // exitMenuItem
             // 
             this.exitMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.exitMenuItem.Size = new System.Drawing.Size(180, 26);
             this.exitMenuItem.Text = "Exit";
             this.exitMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
             // 
@@ -108,7 +119,7 @@
             // 
             this.registersMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.registersMenuItem.Name = "registersMenuItem";
-            this.registersMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.registersMenuItem.Size = new System.Drawing.Size(166, 26);
             this.registersMenuItem.Text = "Registers";
             this.registersMenuItem.Click += new System.EventHandler(this.registersMenuItem_Click);
             // 
@@ -116,7 +127,7 @@
             // 
             this.memoryMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.memoryMenuItem.Name = "memoryMenuItem";
-            this.memoryMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.memoryMenuItem.Size = new System.Drawing.Size(166, 26);
             this.memoryMenuItem.Text = "Memory";
             this.memoryMenuItem.Click += new System.EventHandler(this.memoryMenuItem_Click);
             // 
@@ -124,7 +135,7 @@
             // 
             this.disasmMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.disasmMenuItem.Name = "disasmMenuItem";
-            this.disasmMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.disasmMenuItem.Size = new System.Drawing.Size(166, 26);
             this.disasmMenuItem.Text = "Disassembly";
             this.disasmMenuItem.Click += new System.EventHandler(this.disasmMenuItem_Click);
             // 
@@ -158,7 +169,7 @@
             this.firmPathText});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1296, 31);
+            this.toolStrip1.Size = new System.Drawing.Size(1134, 31);
             this.toolStrip1.TabIndex = 6;
             this.toolStrip1.Text = "mainToolStrip";
             // 
@@ -173,11 +184,12 @@
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1296, 712);
+            this.ClientSize = new System.Drawing.Size(1134, 668);
             this.Controls.Add(this.dockPanel);
             this.Controls.Add(this.toolStrip1);
+            this.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "ATmega128";
@@ -202,6 +214,7 @@
         private System.Windows.Forms.ToolStripButton stopBtn;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripLabel firmPathText;
+        private System.Windows.Forms.ToolStripMenuItem closeMenuItem;
     }
 }
 
