@@ -10,7 +10,9 @@ namespace ATmegaSim.CPU
 {
     public class Cpu : IClockSink
     {
-        private List<byte> firmFile = new List<byte>();
+        public const int FLASH_SIZE = 0x20000; // 0x20000 - total, 0x2000 high - bootloader
+        private byte[] flashMemory = new byte[FLASH_SIZE];
+        private int firmSize;
 
         public struct SREG
         {
@@ -26,9 +28,17 @@ namespace ATmegaSim.CPU
         public static byte[] R = new byte[32];  // Base registers R0 - R31
         public static ushort PC { get; set; }   // Program Counter
 
-        public Cpu(List<byte> firmFile)
+
+        public bool LoadFirm(List<byte> firmFile)
         {
-            this.firmFile = firmFile;
+            if (firmFile.Count > FLASH_SIZE) return false;
+
+            byte[] temp = firmFile.ToArray();
+            firmSize = temp.Length;
+            Array.Copy(temp, 0, flashMemory, 0, temp.Length);
+
+            Cpu.PC = 0;
+            return true;
         }
 
         public void Step(ushort opcode)
@@ -51,9 +61,9 @@ namespace ATmegaSim.CPU
 
         public void OnClock()
         {
-            ExecInstruction((ushort)((firmFile[Cpu.PC + 1] << 8) | firmFile[Cpu.PC])); // little-endian byte order
+            ExecInstruction((ushort)((flashMemory[Cpu.PC + 1] << 8) | flashMemory[Cpu.PC])); // little-endian byte order
             Cpu.PC += 2;
-            if (Cpu.PC >= firmFile.Count)
+            if (Cpu.PC >= firmSize)
             {
                 Cpu.PC = 0;
             }

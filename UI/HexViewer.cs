@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ATmegaSim.CPU;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -19,7 +20,35 @@ namespace ATmegaSim.UI
         public HexViewer()
         {
             InitializeComponent();
+            firmTextBox.TabStop = false;
             firmTextBox.Font = new Font("Consolas", 9, FontStyle.Regular);
+
+            StringBuilder sb = new StringBuilder(Cpu.FLASH_SIZE * 4);
+
+            sb.AppendLine("Address   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F | ASCII");
+            sb.AppendLine("-----------------------------------------------------------|-----------------");
+
+            for (int i = 0; i < Cpu.FLASH_SIZE; i += BYTES_PER_ROW)
+            {
+                sb.Append(i.ToString("X8")).Append(": ");
+
+                for (int j = 0; j < BYTES_PER_ROW; j++)
+                {
+                    sb.Append("FF ");
+                    if (j == 7) sb.Append(" ");
+                }
+
+                sb.Append("| ");
+                for (int j = 0; j < BYTES_PER_ROW; j++)
+                {
+                    sb.Append(".");
+                }
+
+                sb.AppendLine();
+            }
+
+            firmTextBox.Clear();
+            firmTextBox.AppendText(sb.ToString());
         }
 
         public void DisplayFirm(List<byte> firm)
@@ -27,63 +56,55 @@ namespace ATmegaSim.UI
             this.firm = firm;
 
             firmTextBox.Clear();
-            firmTextBox.AppendText("Address   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F | ASCII\n");
-            firmTextBox.AppendText("-----------------------------------------------------------|---------\n");
+            StringBuilder sb = new StringBuilder(2_000_000); // с запасом
 
+            sb.AppendLine("Address   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F | ASCII");
+            sb.AppendLine("-----------------------------------------------------------|-----------------");
 
-            for (int i = 0; i < firm.Count; i += BYTES_PER_ROW)
+            const int limit = 0x20000;
+
+            for (int i = 0; i < limit; i += BYTES_PER_ROW)
             {
-                firmTextBox.AppendText($"{i.ToString("X8")}: ");
+                sb.Append(i.ToString("X8")).Append(": ");
 
                 for (int j = 0; j < BYTES_PER_ROW; j++)
                 {
-                    if (i + j < firm.Count)
-                    {
-                        firmTextBox.AppendText($"{firm[i + j].ToString("X2")} ");
-                    }
-                    else
-                    {
-                        firmTextBox.AppendText("   ");
-                    }
-
-                    if (j == 7) firmTextBox.AppendText(" ");
+                    int index = i + j;
+                    byte value = index < firm.Count ? firm[index] : (byte)0xFF;
+                    sb.Append(value.ToString("X2")).Append(" ");
+                    if (j == 7) sb.Append(" ");
                 }
-                firmTextBox.AppendText("| ");
+
+                sb.Append("| ");
 
                 for (int j = 0; j < BYTES_PER_ROW; j++)
                 {
-                    if (i + j < firm.Count)
-                    {
-                        char c = (char)firm[i + j];
-                        if (!char.IsLetterOrDigit(c) && !char.IsPunctuation(c))
-                        {
-                            firmTextBox.AppendText(".");
-                        }
-                        else
-                        {
-                            firmTextBox.AppendText(c.ToString());
-                        }
-                    }
+                    int index = i + j;
+                    byte value = index < firm.Count ? firm[index] : (byte)0xFF;
+                    char c = (char)value;
+                    if (!char.IsLetterOrDigit(c) && !char.IsPunctuation(c) || c > 127)
+                        sb.Append('.');
                     else
-                    {
-                        firmTextBox.AppendText(" ");
-                    }
+                        sb.Append(c);
                 }
 
-                firmTextBox.AppendText("\n");
+                sb.AppendLine();
             }
+
+            firmTextBox.Clear();
+            firmTextBox.AppendText(sb.ToString());
         }
 
-        public void SetProgPntr(int pp)
+        public void SetProgCntr(int pc)
         {
-            if (pp >= firm.Count)
+            if (firm != null && pc >= firm.Count)
             {
-                pp = 0;
+                pc = 0;
             }
 
-            progPntr = pp;
-            int rowIndex = pp / BYTES_PER_ROW + 2;
-            int byteIndexInRow = pp % BYTES_PER_ROW;
+            progPntr = pc;
+            int rowIndex = pc / BYTES_PER_ROW + 2;
+            int byteIndexInRow = pc % BYTES_PER_ROW;
 
             Invoke((MethodInvoker)delegate
             {
@@ -103,6 +124,11 @@ namespace ATmegaSim.UI
                 firmTextBox.SelectionBackColor = Color.Lime;
                 firmTextBox.SelectionColor = Color.Black;
             });
+        }
+
+        private void firmTextBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            this.ActiveControl = null;
         }
     }
 }

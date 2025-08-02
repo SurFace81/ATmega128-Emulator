@@ -14,7 +14,7 @@ namespace ATmegaSim.ClockSys
         System.Timers.Timer execTimer;
         public Clock(int freq = 2) // 2 Hz 
         {
-            execTimer = new System.Timers.Timer(freq);
+            execTimer = new System.Timers.Timer();
             execTimer.Interval = 1000 / freq;   // in ms
             execTimer.Elapsed += Tick;
             execTimer.AutoReset = true;

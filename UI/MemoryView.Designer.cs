@@ -1,6 +1,6 @@
 ﻿namespace ATmegaSim.UI
 {
-    partial class HexViewer
+    partial class MemoryView
     {
         /// <summary> 
         /// Обязательная переменная конструктора.
@@ -28,39 +28,33 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.firmTextBox = new System.Windows.Forms.RichTextBox();
+            this.hexViewer = new ATmegaSim.UI.HexViewer();
             this.SuspendLayout();
             // 
-            // firmTextBox
+            // hexViewer
             // 
-            this.firmTextBox.DetectUrls = false;
-            this.firmTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.firmTextBox.Location = new System.Drawing.Point(0, 0);
-            this.firmTextBox.Margin = new System.Windows.Forms.Padding(4);
-            this.firmTextBox.Name = "firmTextBox";
-            this.firmTextBox.ReadOnly = true;
-            this.firmTextBox.ShortcutsEnabled = false;
-            this.firmTextBox.Size = new System.Drawing.Size(442, 409);
-            this.firmTextBox.TabIndex = 0;
-            this.firmTextBox.Text = "";
-            this.firmTextBox.WordWrap = false;
-            this.firmTextBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.firmTextBox_MouseDown);
+            this.hexViewer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hexViewer.Font = new System.Drawing.Font("Roboto", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.hexViewer.Location = new System.Drawing.Point(0, 0);
+            this.hexViewer.Margin = new System.Windows.Forms.Padding(4);
+            this.hexViewer.Name = "hexViewer";
+            this.hexViewer.Size = new System.Drawing.Size(659, 546);
+            this.hexViewer.TabIndex = 0;
             // 
-            // HexViewer
+            // MemoryView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.firmTextBox);
-            this.Font = new System.Drawing.Font("Roboto", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "HexViewer";
-            this.Size = new System.Drawing.Size(442, 409);
+            this.ClientSize = new System.Drawing.Size(659, 546);
+            this.Controls.Add(this.hexViewer);
+            this.Name = "MemoryView";
+            this.Text = "Memory";
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox firmTextBox;
+        private HexViewer hexViewer;
     }
 }
