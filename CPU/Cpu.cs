@@ -28,6 +28,7 @@ namespace ATmegaSim.CPU
         }
         public static byte[] R = new byte[32];  // Base registers R0 - R31
         public static ushort PC { get; set; }   // Program Counter
+        public static uint CYCLES { get; set; }
 
         public static ushort X
         {
@@ -79,6 +80,7 @@ namespace ATmegaSim.CPU
         public void Reset()
         {
             Cpu.PC = 0;
+            Cpu.CYCLES = 0;
             Cpu.SREG.C = false;
             Cpu.SREG.Z = false;
             Cpu.SREG.N = false;
@@ -87,8 +89,10 @@ namespace ATmegaSim.CPU
             Cpu.SREG.H = false;
             Cpu.SREG.T = false;
             Cpu.SREG.I = false;
-            for (int i = 0; i < R.Length; i++)
+            for (int i = 0; i < Cpu.R.Length; i++)
                 Cpu.R[i] = 0;
+
+            InvokeOnClockCompleted();
         }
 
         int cyclesToWait = 0;
@@ -114,13 +118,20 @@ namespace ATmegaSim.CPU
                 Commands.Mul(opcode);
                 cyclesToWait = 2;
             }
+            if (((opcode & 0xF800) >> 11) == 0b10111)
+            {
+                Commands.Out(opcode);
+                cyclesToWait = 1;
+            }
         }
 
         private bool _shouldReset = false;
         public void OnClock()
         {
+            Cpu.CYCLES += 1;
             if (cyclesToWait > 1)
             {
+                InvokeOnClockCompleted();
                 cyclesToWait -= 1;
                 return;
             }

@@ -16,6 +16,7 @@ namespace ATmegaSim
         List<MemoryView> memViews = new List<MemoryView>();
         List<RegistersView> regsViews = new List<RegistersView>();
         List<DisassemblyView> disViews = new List<DisassemblyView>();
+        List<PortsView> portsViews = new List<PortsView>();
 
         public Form1()
         {
@@ -33,10 +34,9 @@ namespace ATmegaSim
             regsViews.Add(rv);
             regsViews[regsViews.Count - 1].Show(dockPanel, DockState.DockRight);
 
-            systemClock = new Clock(4);
+            systemClock = new Clock();
         }
 
-        private ushort oldPC = 0;
         private void Atmega128_OnClockCompleted(object sender, EventArgs e)
         {
             Invoke((MethodInvoker)delegate
@@ -44,11 +44,9 @@ namespace ATmegaSim
                 foreach (var regsView in regsViews)
                     regsView.UpdateRegisters();
                 foreach (var memView in memViews)
-                    memView.SetProgCntr(oldPC);
+                    memView.SetProgCntr(Cpu.PC);
                 foreach (var disView in disViews)
-                    disView.SetProgCntr(oldPC);
-
-                oldPC = Cpu.PC;
+                    disView.SetProgCntr(Cpu.PC);
             });
         }
 
@@ -91,6 +89,9 @@ namespace ATmegaSim
                     memView.DisplayFirm(HexParser.FirmFile);
                 foreach (var disView in disViews)
                     disView.DisplayDisasm(HexParser.FirmFile);
+
+                resetBtn.Enabled = true;
+                stepBtn.Enabled = true;
             }
         }
 
@@ -100,10 +101,15 @@ namespace ATmegaSim
 
             foreach (var memView in memViews)
                 memView.DisplayFirm(HexParser.FirmFile);
+
+            resetBtn.Enabled = false;
+            stepBtn.Enabled = false;
         }
 
         private void registersMenuItem_Click(object sender, EventArgs e)
         {
+            if (regsViews.Count >= 4) return;
+
             var rv = new RegistersView();
             rv.FormClosed += ((object sender, FormClosedEventArgs e) => regsViews.Remove((RegistersView)sender));
             regsViews.Add(rv);
@@ -112,6 +118,8 @@ namespace ATmegaSim
 
         private void memoryMenuItem_Click(object sender, EventArgs e)
         {
+            if(memViews.Count >= 4) return;
+
             var mv = new MemoryView();
             mv.FormClosed += ((object sender, FormClosedEventArgs e) => memViews.Remove((MemoryView)sender));
             memViews.Add(mv);
@@ -121,15 +129,31 @@ namespace ATmegaSim
 
         private void disasmMenuItem_Click(object sender, EventArgs e)
         {
+            if (disViews.Count >= 4) return;
+
             var dv = new DisassemblyView();
             dv.FormClosed += ((object sender, FormClosedEventArgs e) => disViews.Remove((DisassemblyView)sender));
             disViews.Add(dv);
             disViews[disViews.Count - 1].Show(dockPanel, DockState.DockRight);
         }
+        private void portsMenuItem_Click(object sender, EventArgs e)
+        {
+            if (portsViews.Count >= 4) return;
+
+            var pv = new PortsView();
+            pv.FormClosed += ((object sender, FormClosedEventArgs e) => portsViews.Remove((PortsView)sender));
+            portsViews.Add(pv);
+            portsViews[portsViews.Count - 1].Show(dockPanel, DockState.Float);
+        }
 
         private void stepBtn_Click(object sender, EventArgs e)
         {
-            atmega128.Step();
+            atmega128?.Step();
+        }
+
+        private void resetBtn_Click(object sender, EventArgs e)
+        {
+            atmega128?.Reset();
         }
     }
 }

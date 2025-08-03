@@ -16,6 +16,14 @@ namespace ATmegaSim.CPU
             return $"ADD R{d}, R{r}";
         }
 
+        public static string Adc(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x1F;
+            int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
+
+            return $"ADC R{d}, R{r}";
+        }
+
         public static string Ldi(ushort opcode)
         {
             int d = 16 + ((opcode >> 4) & 0x0F);
@@ -30,6 +38,14 @@ namespace ATmegaSim.CPU
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
 
             return $"MUL R{d}, R{r}";
+        }
+
+        public static string Out(ushort opcode)
+        {
+            int A = (opcode & 0x0F) | ((opcode >> 9) & 0x03);
+            int r = (opcode >> 4) & 0x1F;
+
+            return $"OUT {A}, R{r}";
         }
     }
 }

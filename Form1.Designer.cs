@@ -44,6 +44,11 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.firmPathText = new System.Windows.Forms.ToolStripLabel();
             this.stepBtn = new System.Windows.Forms.ToolStripButton();
+            this.portsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resetBtn = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
+            this.delayTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -57,7 +62,7 @@
             this.dockPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dockPanel.Location = new System.Drawing.Point(0, 31);
             this.dockPanel.Name = "dockPanel";
-            this.dockPanel.Size = new System.Drawing.Size(1134, 637);
+            this.dockPanel.Size = new System.Drawing.Size(1134, 691);
             this.dockPanel.TabIndex = 7;
             // 
             // toolStripDropDownButton1
@@ -90,7 +95,7 @@
             this.closeMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.closeMenuItem.Name = "closeMenuItem";
             this.closeMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F4)));
-            this.closeMenuItem.Size = new System.Drawing.Size(180, 26);
+            this.closeMenuItem.Size = new System.Drawing.Size(224, 26);
             this.closeMenuItem.Text = "Close";
             this.closeMenuItem.Click += new System.EventHandler(this.closeMenuItem_Click);
             // 
@@ -98,7 +103,7 @@
             // 
             this.exitMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.Size = new System.Drawing.Size(180, 26);
+            this.exitMenuItem.Size = new System.Drawing.Size(224, 26);
             this.exitMenuItem.Text = "Exit";
             this.exitMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
             // 
@@ -108,7 +113,8 @@
             this.toolStripDropDownButton2.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.registersMenuItem,
             this.memoryMenuItem,
-            this.disasmMenuItem});
+            this.disasmMenuItem,
+            this.portsMenuItem});
             this.toolStripDropDownButton2.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.toolStripDropDownButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton2.Image")));
             this.toolStripDropDownButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -120,7 +126,8 @@
             // 
             this.registersMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.registersMenuItem.Name = "registersMenuItem";
-            this.registersMenuItem.Size = new System.Drawing.Size(166, 26);
+            this.registersMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
+            this.registersMenuItem.Size = new System.Drawing.Size(224, 26);
             this.registersMenuItem.Text = "Registers";
             this.registersMenuItem.Click += new System.EventHandler(this.registersMenuItem_Click);
             // 
@@ -128,7 +135,8 @@
             // 
             this.memoryMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.memoryMenuItem.Name = "memoryMenuItem";
-            this.memoryMenuItem.Size = new System.Drawing.Size(166, 26);
+            this.memoryMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.M)));
+            this.memoryMenuItem.Size = new System.Drawing.Size(224, 26);
             this.memoryMenuItem.Text = "Memory";
             this.memoryMenuItem.Click += new System.EventHandler(this.memoryMenuItem_Click);
             // 
@@ -136,7 +144,8 @@
             // 
             this.disasmMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.disasmMenuItem.Name = "disasmMenuItem";
-            this.disasmMenuItem.Size = new System.Drawing.Size(166, 26);
+            this.disasmMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.D)));
+            this.disasmMenuItem.Size = new System.Drawing.Size(224, 26);
             this.disasmMenuItem.Text = "Disassembly";
             this.disasmMenuItem.Click += new System.EventHandler(this.disasmMenuItem_Click);
             // 
@@ -147,6 +156,7 @@
             this.runBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.runBtn.Name = "runBtn";
             this.runBtn.Size = new System.Drawing.Size(29, 28);
+            this.runBtn.ToolTipText = "Start";
             this.runBtn.Click += new System.EventHandler(this.runBtn_Click);
             // 
             // stopBtn
@@ -157,10 +167,12 @@
             this.stopBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stopBtn.Name = "stopBtn";
             this.stopBtn.Size = new System.Drawing.Size(29, 28);
+            this.stopBtn.ToolTipText = "Stop/Pause";
             this.stopBtn.Click += new System.EventHandler(this.stopBtn_Click);
             // 
             // toolStrip1
             // 
+            this.toolStrip1.BackColor = System.Drawing.SystemColors.Control;
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripDropDownButton1,
@@ -168,7 +180,11 @@
             this.runBtn,
             this.stopBtn,
             this.firmPathText,
-            this.stepBtn});
+            this.stepBtn,
+            this.resetBtn,
+            this.toolStripSeparator1,
+            this.toolStripLabel1,
+            this.delayTextBox});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(1134, 31);
@@ -186,20 +202,63 @@
             // 
             // stepBtn
             // 
-            this.stepBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.stepBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.stepBtn.Enabled = false;
             this.stepBtn.Image = ((System.Drawing.Image)(resources.GetObject("stepBtn.Image")));
             this.stepBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stepBtn.Name = "stepBtn";
-            this.stepBtn.Size = new System.Drawing.Size(53, 28);
+            this.stepBtn.Size = new System.Drawing.Size(29, 28);
             this.stepBtn.Text = "[Step]";
-            this.stepBtn.ToolTipText = "One step";
+            this.stepBtn.ToolTipText = "Step";
             this.stepBtn.Click += new System.EventHandler(this.stepBtn_Click);
+            // 
+            // portsMenuItem
+            // 
+            this.portsMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.portsMenuItem.Name = "portsMenuItem";
+            this.portsMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.P)));
+            this.portsMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.portsMenuItem.Text = "Ports";
+            this.portsMenuItem.Click += new System.EventHandler(this.portsMenuItem_Click);
+            // 
+            // resetBtn
+            // 
+            this.resetBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.resetBtn.Enabled = false;
+            this.resetBtn.Image = ((System.Drawing.Image)(resources.GetObject("resetBtn.Image")));
+            this.resetBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.resetBtn.Name = "resetBtn";
+            this.resetBtn.Size = new System.Drawing.Size(29, 28);
+            this.resetBtn.ToolTipText = "Reset";
+            this.resetBtn.Click += new System.EventHandler(this.resetBtn_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 31);
+            // 
+            // toolStripLabel1
+            // 
+            this.toolStripLabel1.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.toolStripLabel1.Name = "toolStripLabel1";
+            this.toolStripLabel1.Size = new System.Drawing.Size(88, 28);
+            this.toolStripLabel1.Text = "Delay, ms:";
+            // 
+            // delayTextBox
+            // 
+            this.delayTextBox.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.delayTextBox.MaxLength = 10;
+            this.delayTextBox.Name = "delayTextBox";
+            this.delayTextBox.ShortcutsEnabled = false;
+            this.delayTextBox.Size = new System.Drawing.Size(100, 31);
+            this.delayTextBox.Text = "1000";
+            this.delayTextBox.TextBoxTextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1134, 668);
+            this.ClientSize = new System.Drawing.Size(1134, 722);
             this.Controls.Add(this.dockPanel);
             this.Controls.Add(this.toolStrip1);
             this.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
@@ -229,6 +288,11 @@
         private System.Windows.Forms.ToolStripLabel firmPathText;
         private System.Windows.Forms.ToolStripMenuItem closeMenuItem;
         private System.Windows.Forms.ToolStripButton stepBtn;
+        private System.Windows.Forms.ToolStripMenuItem portsMenuItem;
+        private System.Windows.Forms.ToolStripButton resetBtn;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
+        private System.Windows.Forms.ToolStripTextBox delayTextBox;
     }
 }
 

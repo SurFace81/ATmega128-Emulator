@@ -75,6 +75,10 @@ namespace ATmegaSim.UI
             {
                 return Disassembler.Add(opcode);
             }
+            if (((opcode & 0xFC00) >> 10) == 0b0111)
+            {
+                return Disassembler.Adc(opcode);
+            }
             if (((opcode & 0xF000) >> 12) == 0b1110)
             {
                 return Disassembler.Ldi(opcode);
@@ -82,6 +86,10 @@ namespace ATmegaSim.UI
             if (((opcode & 0xFC00) >> 10) == 0b100111)
             {
                 return Disassembler.Mul(opcode);
+            }
+            if (((opcode & 0xF800) >> 11) == 0b10111)
+            {
+                return Disassembler.Out(opcode);
             }
 
             return "???";
