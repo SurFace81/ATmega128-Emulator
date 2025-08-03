@@ -26,7 +26,8 @@ namespace ATmegaSim.CPU
             public static bool T; // Bit Copy Storage
             public static bool I; // Global Interrupt Enable
         }
-        public static byte[] R = new byte[32];  // Base registers R0 - R31
+        public static byte[] R = new byte[32];       // Base registers R0 - R31
+        public static byte[] IORegs = new byte[64];  // I/O registers
         public static ushort PC { get; set; }   // Program Counter
         public static uint CYCLES { get; set; }
 

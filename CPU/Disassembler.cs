@@ -42,10 +42,10 @@ namespace ATmegaSim.CPU
 
         public static string Out(ushort opcode)
         {
-            int A = (opcode & 0x0F) | ((opcode >> 9) & 0x03);
+            int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int r = (opcode >> 4) & 0x1F;
 
-            return $"OUT {A}, R{r}";
+            return $"OUT 0x{A.ToString("X2")}, R{r}";
         }
     }
 }

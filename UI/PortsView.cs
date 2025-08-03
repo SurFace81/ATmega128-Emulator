@@ -17,5 +17,10 @@ namespace ATmegaSim.UI
         {
             InitializeComponent();
         }
+
+        public void UpdatePorts()
+        {
+
+        }
     }
 }

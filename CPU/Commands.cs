@@ -87,10 +87,10 @@ namespace ATmegaSim.CPU
 
         public static void Out(ushort opcode)
         {
-            int A = (opcode & 0x0F) | ((opcode >> 9) & 0x03);
+            int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int r = (opcode >> 4) & 0x1F;
 
-            // TODO
+            Cpu.IORegs[A] = Cpu.R[r];
         }
     }
 }
