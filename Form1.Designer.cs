@@ -43,6 +43,7 @@
             this.stopBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.firmPathText = new System.Windows.Forms.ToolStripLabel();
+            this.stepBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -166,7 +167,8 @@
             this.toolStripDropDownButton2,
             this.runBtn,
             this.stopBtn,
-            this.firmPathText});
+            this.firmPathText,
+            this.stepBtn});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(1134, 31);
@@ -181,6 +183,17 @@
             this.firmPathText.Name = "firmPathText";
             this.firmPathText.Size = new System.Drawing.Size(500, 28);
             this.firmPathText.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // stepBtn
+            // 
+            this.stepBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.stepBtn.Image = ((System.Drawing.Image)(resources.GetObject("stepBtn.Image")));
+            this.stepBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.stepBtn.Name = "stepBtn";
+            this.stepBtn.Size = new System.Drawing.Size(53, 28);
+            this.stepBtn.Text = "[Step]";
+            this.stepBtn.ToolTipText = "One step";
+            this.stepBtn.Click += new System.EventHandler(this.stepBtn_Click);
             // 
             // Form1
             // 
@@ -215,6 +228,7 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripLabel firmPathText;
         private System.Windows.Forms.ToolStripMenuItem closeMenuItem;
+        private System.Windows.Forms.ToolStripButton stepBtn;
     }
 }
 

@@ -78,21 +78,6 @@ namespace ATmegaSim.UI
                 pc = 0;
             }
 
-            if (InvokeRequired)
-            {
-                Invoke((MethodInvoker)delegate
-                {
-                    InvokeMethod(pc);
-                });
-            }
-            else
-            {
-                InvokeMethod(pc);
-            }
-        }
-
-        private void InvokeMethod(int pc)
-        {
             int rowIndex = pc / BYTES_PER_ROW + 2;
             int byteIndexInRow = pc % BYTES_PER_ROW;
 

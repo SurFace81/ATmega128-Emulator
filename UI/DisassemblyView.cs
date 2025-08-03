@@ -26,7 +26,7 @@ namespace ATmegaSim.UI
         public void DisplayDisasm(List<byte> mem)
         {
             this.mem = mem;
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
 
             for (int i = 0; i < mem.Count; i += 2)
             {
@@ -34,13 +34,12 @@ namespace ATmegaSim.UI
                 sb.AppendLine($"{i:X6}: 0x{opcode:X4}  {Disassemble(opcode)}");
             }
 
-            for (int i = mem.Count; i < Cpu.FLASH_SIZE; i += 2)
-            {
-                sb.AppendLine($"{i:X6}: 0xFFFF  ???");
-            }
+            //for (int i = mem.Count; i < Cpu.FLASH_SIZE; i += 2)
+            //{
+            //    sb.AppendLine($"{i:X6}: 0xFFFF  ???");
+            //}
 
             disasmTextBox.Text = sb.ToString();
-
             SetProgCntr(Cpu.PC);
         }
 
@@ -50,22 +49,8 @@ namespace ATmegaSim.UI
             {
                 pc = 0;
             }
+            pc /= 2;
 
-            if (InvokeRequired)
-            {
-                Invoke((MethodInvoker)delegate
-                {
-                    InvokeMethod(pc / 2);
-                });
-            }
-            else
-            {
-                InvokeMethod(pc / 2);
-            }
-        }
-
-        private void InvokeMethod(int pc)
-        {
             // Сброс цвета
             disasmTextBox.SelectAll();
             disasmTextBox.SelectionBackColor = disasmTextBox.BackColor;
@@ -82,7 +67,6 @@ namespace ATmegaSim.UI
                 disasmTextBox.SelectionBackColor = Color.Lime;
                 disasmTextBox.SelectionColor = Color.Black;
             }
-
         }
 
         private string Disassemble(ushort opcode)

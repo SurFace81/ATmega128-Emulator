@@ -23,42 +23,33 @@ namespace ATmegaSim
             dockPanel.Theme = new VS2015LightTheme();
 
             var mv = new MemoryView();
-            mv.FormClosed += Mv_FormClosed;
+            mv.FormClosed += ((object sender, FormClosedEventArgs e) => memViews.Remove((MemoryView)sender));
             memViews.Add(mv);
             memViews[memViews.Count - 1].Show(dockPanel, DockState.Document);
             memViews[memViews.Count - 1].SetProgCntr(0);
 
             var rv = new RegistersView();
-            rv.FormClosed += Rv_FormClosed;
+            rv.FormClosed += ((object sender, FormClosedEventArgs e) => regsViews.Remove((RegistersView)sender));
             regsViews.Add(rv);
             regsViews[regsViews.Count - 1].Show(dockPanel, DockState.DockRight);
 
-            systemClock = new Clock();
+            systemClock = new Clock(4);
         }
 
-        private void Dv_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            disViews.Remove((DisassemblyView)sender);
-        }
-
-        private void Rv_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            regsViews.Remove((RegistersView)sender);
-        }
-
-        private void Mv_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            memViews.Remove((MemoryView)sender);
-        }
-
+        private ushort oldPC = 0;
         private void Atmega128_OnClockCompleted(object sender, EventArgs e)
         {
-            foreach (var regsView in regsViews)
-                regsView.UpdateRegisters();
-            foreach (var memView in memViews)
-                memView.SetProgCntr(Cpu.PC);
-            foreach (var disView in disViews)
-                disView.SetProgCntr(Cpu.PC);
+            Invoke((MethodInvoker)delegate
+            {
+                foreach (var regsView in regsViews)
+                    regsView.UpdateRegisters();
+                foreach (var memView in memViews)
+                    memView.SetProgCntr(oldPC);
+                foreach (var disView in disViews)
+                    disView.SetProgCntr(oldPC);
+
+                oldPC = Cpu.PC;
+            });
         }
 
         private void runBtn_Click(object sender, EventArgs e)
@@ -114,7 +105,7 @@ namespace ATmegaSim
         private void registersMenuItem_Click(object sender, EventArgs e)
         {
             var rv = new RegistersView();
-            rv.FormClosed += Rv_FormClosed;
+            rv.FormClosed += ((object sender, FormClosedEventArgs e) => regsViews.Remove((RegistersView)sender));
             regsViews.Add(rv);
             regsViews[regsViews.Count - 1].Show(dockPanel, DockState.DockRight);
         }
@@ -122,7 +113,7 @@ namespace ATmegaSim
         private void memoryMenuItem_Click(object sender, EventArgs e)
         {
             var mv = new MemoryView();
-            mv.FormClosed += Mv_FormClosed;
+            mv.FormClosed += ((object sender, FormClosedEventArgs e) => memViews.Remove((MemoryView)sender));
             memViews.Add(mv);
             memViews[memViews.Count - 1].Show(dockPanel, DockState.DockRight);
             memViews[memViews.Count - 1].DisplayFirm(HexParser.FirmFile);
@@ -131,9 +122,14 @@ namespace ATmegaSim
         private void disasmMenuItem_Click(object sender, EventArgs e)
         {
             var dv = new DisassemblyView();
-            dv.FormClosed += Dv_FormClosed;
+            dv.FormClosed += ((object sender, FormClosedEventArgs e) => disViews.Remove((DisassemblyView)sender));
             disViews.Add(dv);
             disViews[disViews.Count - 1].Show(dockPanel, DockState.DockRight);
+        }
+
+        private void stepBtn_Click(object sender, EventArgs e)
+        {
+            atmega128.Step();
         }
     }
 }

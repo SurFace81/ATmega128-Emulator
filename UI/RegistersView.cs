@@ -37,39 +37,36 @@ namespace ATmegaSim.UI
         {
             try
             {
-                Invoke((MethodInvoker)delegate
+                int scrollIndex = regsGridView.FirstDisplayedScrollingRowIndex;
+                int selectedRow = -1;
+                if (regsGridView.SelectedRows.Count > 0)
                 {
-                    int scrollIndex = regsGridView.FirstDisplayedScrollingRowIndex;
-                    int selectedRow = -1;
-                    if (regsGridView.SelectedRows.Count > 0)
-                    {
-                        selectedRow = regsGridView.SelectedRows[0].Index;
-                    }
+                    selectedRow = regsGridView.SelectedRows[0].Index;
+                }
 
-                    rows.Clear();
-                    rows.Add(new RegisterItem { Name = "X", Value = FormatToString(Cpu.X, 4) });
-                    rows.Add(new RegisterItem { Name = "Y", Value = FormatToString(Cpu.Y, 4) });
-                    rows.Add(new RegisterItem { Name = "Z", Value = FormatToString(Cpu.Z, 4) });
-                    rows.Add(new RegisterItem { Name = "SREG", Value = "0b" + Convert.ToString(GetSreg(), 2).PadLeft(8, '0') }); // Always in binary format
-                    // SP
-                    rows.Add(new RegisterItem { Name = "PC", Value = FormatToString((uint)(Cpu.PC / 2), 4) });
-                    // CYCLES
-                    for (int i = 0; i < Cpu.R.Length; i++)
-                    {
-                        rows.Add(new RegisterItem { Name = $"R{i}", Value = FormatToString(Cpu.R[i], 2) });
-                    }
-                    // RAMPZ
-                    // Z24
+                rows.Clear();
+                rows.Add(new RegisterItem { Name = "X", Value = FormatToString(Cpu.X, 4) });
+                rows.Add(new RegisterItem { Name = "Y", Value = FormatToString(Cpu.Y, 4) });
+                rows.Add(new RegisterItem { Name = "Z", Value = FormatToString(Cpu.Z, 4) });
+                rows.Add(new RegisterItem { Name = "SREG", Value = "0b" + Convert.ToString(GetSreg(), 2).PadLeft(8, '0') }); // Always in binary format
+                // SP
+                rows.Add(new RegisterItem { Name = "PC", Value = FormatToString((uint)(Cpu.PC / 2), 4) });
+                // CYCLES
+                for (int i = 0; i < Cpu.R.Length; i++)
+                {
+                    rows.Add(new RegisterItem { Name = $"R{i}", Value = FormatToString(Cpu.R[i], 2) });
+                }
+                // RAMPZ
+                // Z24
 
-                    if (scrollIndex != -1)
-                    {
-                        regsGridView.FirstDisplayedScrollingRowIndex = scrollIndex;
-                    }
-                    if (selectedRow != -1)
-                    {
-                        regsGridView.Rows[selectedRow].Selected = true;
-                    }
-                });
+                if (scrollIndex != -1)
+                {
+                    regsGridView.FirstDisplayedScrollingRowIndex = scrollIndex;
+                }
+                if (selectedRow != -1)
+                {
+                    regsGridView.Rows[selectedRow].Selected = true;
+                }
             }
             catch { }
         }

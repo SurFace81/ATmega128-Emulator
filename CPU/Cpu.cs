@@ -73,8 +73,7 @@ namespace ATmegaSim.CPU
 
         public void Step()
         {
-            ExecInstruction((ushort)((flashMemory[Cpu.PC + 1] << 8) | flashMemory[Cpu.PC]));
-            Cpu.PC += 1;
+            OnClock();
         }
 
         public void Reset()
@@ -92,33 +91,57 @@ namespace ATmegaSim.CPU
                 Cpu.R[i] = 0;
         }
 
+        int cyclesToWait = 0;
         private void ExecInstruction(ushort opcode)
-        {
+        { 
             if (((opcode & 0xFC00) >> 10) == 0b0011)
             {
                 Commands.Add(opcode);
+                cyclesToWait = 1;
+            }
+            if (((opcode & 0xFC00) >> 10) == 0b0111)
+            {
+                Commands.Adc(opcode);
+                cyclesToWait = 1;
             }
             if (((opcode & 0xF000) >> 12) == 0b1110)
             {
                 Commands.Ldi(opcode);
+                cyclesToWait = 1;
             }
             if (((opcode & 0xFC00) >> 10) == 0b100111)
             {
                 Commands.Mul(opcode);
+                cyclesToWait = 2;
             }
         }
 
+        private bool _shouldReset = false;
         public void OnClock()
         {
-            ExecInstruction((ushort)((flashMemory[Cpu.PC + 1] << 8) | flashMemory[Cpu.PC])); // little-endian byte order
-            Cpu.PC += 2;
-            if (Cpu.PC >= firmSize)
+            if (cyclesToWait > 1)
             {
-                Reset();
-                Cpu.PC = 0;
+                cyclesToWait -= 1;
+                return;
             }
 
+            if (_shouldReset)
+            {
+                Reset();
+                _shouldReset = false;
+                InvokeOnClockCompleted();
+                return;
+            }
+
+            ExecInstruction((ushort)((flashMemory[Cpu.PC + 1] << 8) | flashMemory[Cpu.PC])); // little-endian byte order
+            Cpu.PC += 2;
+
             InvokeOnClockCompleted();
+
+            if (Cpu.PC >= firmSize)
+            {
+                _shouldReset = true;
+            }
         }
 
         public static event EventHandler<EventArgs> OnClockCompleted;

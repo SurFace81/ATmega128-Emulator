@@ -34,6 +34,20 @@ namespace ATmegaSim.CPU
             Cpu.SREG.C = (Rd7 && Rr7) || (Rr7 && !R7) || (!R7 && Rd7);
         }
 
+        public static void Adc(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x1F;
+            int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
+
+            byte Rd = Cpu.R[d];
+            byte Rr = Cpu.R[r];
+            byte R = (byte)(Rd + Rr + Convert.ToByte(Cpu.SREG.C));
+            Cpu.R[d] = R;
+
+            // Flags
+            // ...
+        }
+
         public static void Ldi(ushort opcode)
         {
             int d = 16 + ((opcode >> 4) & 0x0F);                  // 16 <= Rd <= 31
