@@ -39,12 +39,12 @@
             this.registersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.memoryMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disasmMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.portsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.runBtn = new System.Windows.Forms.ToolStripButton();
             this.stopBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.firmPathText = new System.Windows.Forms.ToolStripLabel();
             this.stepBtn = new System.Windows.Forms.ToolStripButton();
-            this.portsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
@@ -95,7 +95,7 @@
             this.closeMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.closeMenuItem.Name = "closeMenuItem";
             this.closeMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F4)));
-            this.closeMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.closeMenuItem.Size = new System.Drawing.Size(180, 26);
             this.closeMenuItem.Text = "Close";
             this.closeMenuItem.Click += new System.EventHandler(this.closeMenuItem_Click);
             // 
@@ -103,7 +103,7 @@
             // 
             this.exitMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.exitMenuItem.Size = new System.Drawing.Size(180, 26);
             this.exitMenuItem.Text = "Exit";
             this.exitMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
             // 
@@ -127,7 +127,7 @@
             this.registersMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.registersMenuItem.Name = "registersMenuItem";
             this.registersMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
-            this.registersMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.registersMenuItem.Size = new System.Drawing.Size(208, 26);
             this.registersMenuItem.Text = "Registers";
             this.registersMenuItem.Click += new System.EventHandler(this.registersMenuItem_Click);
             // 
@@ -136,7 +136,7 @@
             this.memoryMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.memoryMenuItem.Name = "memoryMenuItem";
             this.memoryMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.M)));
-            this.memoryMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.memoryMenuItem.Size = new System.Drawing.Size(208, 26);
             this.memoryMenuItem.Text = "Memory";
             this.memoryMenuItem.Click += new System.EventHandler(this.memoryMenuItem_Click);
             // 
@@ -145,9 +145,18 @@
             this.disasmMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.disasmMenuItem.Name = "disasmMenuItem";
             this.disasmMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.D)));
-            this.disasmMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.disasmMenuItem.Size = new System.Drawing.Size(208, 26);
             this.disasmMenuItem.Text = "Disassembly";
             this.disasmMenuItem.Click += new System.EventHandler(this.disasmMenuItem_Click);
+            // 
+            // portsMenuItem
+            // 
+            this.portsMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.portsMenuItem.Name = "portsMenuItem";
+            this.portsMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.P)));
+            this.portsMenuItem.Size = new System.Drawing.Size(208, 26);
+            this.portsMenuItem.Text = "Ports";
+            this.portsMenuItem.Click += new System.EventHandler(this.portsMenuItem_Click);
             // 
             // runBtn
             // 
@@ -211,15 +220,6 @@
             this.stepBtn.Text = "[Step]";
             this.stepBtn.ToolTipText = "Step";
             this.stepBtn.Click += new System.EventHandler(this.stepBtn_Click);
-            // 
-            // portsMenuItem
-            // 
-            this.portsMenuItem.Font = new System.Drawing.Font("Consolas", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.portsMenuItem.Name = "portsMenuItem";
-            this.portsMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.P)));
-            this.portsMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.portsMenuItem.Text = "Ports";
-            this.portsMenuItem.Click += new System.EventHandler(this.portsMenuItem_Click);
             // 
             // resetBtn
             // 

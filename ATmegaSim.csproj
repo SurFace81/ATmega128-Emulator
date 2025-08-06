@@ -111,6 +111,12 @@
     <Compile Include="UI\MemoryView.Designer.cs">
       <DependentUpon>MemoryView.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\PortControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\PortControl.Designer.cs">
+      <DependentUpon>PortControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\PortsView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -140,12 +146,16 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="UI\DisassemblyView.resx">
       <DependentUpon>DisassemblyView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\MemoryView.resx">
       <DependentUpon>MemoryView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PortControl.resx">
+      <DependentUpon>PortControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\PortsView.resx">
       <DependentUpon>PortsView.cs</DependentUpon>
@@ -186,10 +196,11 @@
     <Content Include="icon.ico" />
     <Content Include="License-LGPL.txt" />
     <Content Include="Resources\delete.png" />
-    <Content Include="Resources\run-50.png" />
-    <Content Include="Resources\run-80.png" />
-    <Content Include="Resources\loading-arrow.png" />
-    <Content Include="Resources\pause.png" />
+    <Content Include="Resources\pin_off.png" />
+    <Content Include="Resources\pin_on.png" />
+    <Content Include="Resources\reset.png" />
+    <Content Include="Resources\run.png" />
+    <Content Include="Resources\step.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

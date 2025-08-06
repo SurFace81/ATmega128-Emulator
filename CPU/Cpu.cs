@@ -80,7 +80,7 @@ namespace ATmegaSim.CPU
 
         public void Reset()
         {
-            Cpu.PC = 0;
+            Cpu.PC     = 0;
             Cpu.CYCLES = 0;
             Cpu.SREG.C = false;
             Cpu.SREG.Z = false;
@@ -90,15 +90,20 @@ namespace ATmegaSim.CPU
             Cpu.SREG.H = false;
             Cpu.SREG.T = false;
             Cpu.SREG.I = false;
-            for (int i = 0; i < Cpu.R.Length; i++)
-                Cpu.R[i] = 0;
+            Cpu.R      = new byte[32];
+            Cpu.IORegs = new byte[64];
 
             InvokeOnClockCompleted();
         }
 
         int cyclesToWait = 0;
         private void ExecInstruction(ushort opcode)
-        { 
+        {
+            if (opcode == 0x0000)
+            {
+                //Commands.Nop();
+                cyclesToWait = 1;
+            }
             if (((opcode & 0xFC00) >> 10) == 0b0011)
             {
                 Commands.Add(opcode);

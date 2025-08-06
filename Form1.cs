@@ -3,6 +3,7 @@ using ATmegaSim.CPU;
 using ATmegaSim.UI;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -47,6 +48,8 @@ namespace ATmegaSim
                     memView.SetProgCntr(Cpu.PC);
                 foreach (var disView in disViews)
                     disView.SetProgCntr(Cpu.PC);
+                foreach (var portView in portsViews)
+                    portView.UpdatePorts();
             });
         }
 
@@ -142,6 +145,7 @@ namespace ATmegaSim
 
             var pv = new PortsView();
             pv.FormClosed += ((object sender, FormClosedEventArgs e) => portsViews.Remove((PortsView)sender));
+            pv.FormBorderStyle = FormBorderStyle.FixedDialog;
             portsViews.Add(pv);
             portsViews[portsViews.Count - 1].Show(dockPanel, DockState.Float);
         }
