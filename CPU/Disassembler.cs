@@ -8,6 +8,11 @@ namespace ATmegaSim.CPU
 {
     public class Disassembler
     {
+        public static string Nop(ushort opcode)
+        {
+            return $"NOP";
+        }
+
         public static string Add(ushort opcode)
         {
             int d = (opcode >> 4) & 0x1F;
@@ -46,6 +51,14 @@ namespace ATmegaSim.CPU
             int r = (opcode >> 4) & 0x1F;
 
             return $"OUT 0x{A.ToString("X2")}, R{r}";
+        }
+
+        public static string In(ushort opcode)
+        {
+            int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
+            int d = (opcode >> 4) & 0x1F;
+
+            return $"IN R{d}, 0x{A.ToString("X2")}";
         }
     }
 }

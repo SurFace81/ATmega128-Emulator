@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace ATmegaSim.CPU
 {
@@ -91,6 +92,15 @@ namespace ATmegaSim.CPU
             int r = (opcode >> 4) & 0x1F;
 
             Cpu.IORegs[A] = Cpu.R[r];
+        }
+
+        public static void In(ushort opcode)
+        {
+            int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
+            int d = (opcode >> 4) & 0x1F;
+
+            Cpu.R[d] = Cpu.IORegs[A];
+            MessageBox.Show(Convert.ToString(Cpu.R[d], 2).PadLeft(8));
         }
     }
 }

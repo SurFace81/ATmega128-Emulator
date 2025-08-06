@@ -71,6 +71,10 @@ namespace ATmegaSim.UI
 
         private string Disassemble(ushort opcode)
         {
+            if (opcode == 0x0000)
+            {
+                return Disassembler.Nop(opcode);
+            }
             if (((opcode & 0xFC00) >> 10) == 0b0011)
             {
                 return Disassembler.Add(opcode);
@@ -90,6 +94,10 @@ namespace ATmegaSim.UI
             if (((opcode & 0xF800) >> 11) == 0b10111)
             {
                 return Disassembler.Out(opcode);
+            }
+            if (((opcode & 0xF800) >> 11) == 0b10110)
+            {
+                return Disassembler.In(opcode);
             }
 
             return "???";

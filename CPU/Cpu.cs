@@ -28,6 +28,10 @@ namespace ATmegaSim.CPU
         }
         public static byte[] R = new byte[32];       // Base registers R0 - R31
         public static byte[] IORegs = new byte[64];  // I/O registers
+        // TODO: Доступ к ним только через LDS/STS и т.д.
+        //private static IOPort PORTF = new IOPort();
+        //private static IOPort PORTG = new IOPort();
+        public static IOPort[] IOPorts = new IOPort[5] { new IOPort(), new IOPort(), new IOPort(), new IOPort(), new IOPort() };
         public static ushort PC { get; set; }   // Program Counter
         public static uint CYCLES { get; set; }
 
@@ -127,6 +131,11 @@ namespace ATmegaSim.CPU
             if (((opcode & 0xF800) >> 11) == 0b10111)
             {
                 Commands.Out(opcode);
+                cyclesToWait = 1;
+            }
+            if (((opcode & 0xF800) >> 11) == 0b10110)
+            {
+                Commands.In(opcode);
                 cyclesToWait = 1;
             }
         }
