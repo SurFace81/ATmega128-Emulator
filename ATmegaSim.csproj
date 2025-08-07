@@ -89,7 +89,6 @@
     <Compile Include="CPU\Cpu.cs" />
     <Compile Include="CPU\Disassembler.cs" />
     <Compile Include="CPU\IOPort.cs" />
-    <Compile Include="CPU\IOSpace.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

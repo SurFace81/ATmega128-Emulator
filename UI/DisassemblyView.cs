@@ -16,10 +16,13 @@ namespace ATmegaSim.UI
     public partial class DisassemblyView : DockContent
     {
         private List<byte> mem = new List<byte>();
-
-        public DisassemblyView()
+        private Cpu cpu;
+        private Disassembler disasm;
+        public DisassemblyView(Cpu cpu)
         {
             InitializeComponent();
+            this.cpu = cpu;
+            this.disasm = new Disassembler();
             DisplayDisasm(HexParser.FirmFile);
         }
 
@@ -40,7 +43,7 @@ namespace ATmegaSim.UI
             //}
 
             disasmTextBox.Text = sb.ToString();
-            SetProgCntr(Cpu.PC);
+            SetProgCntr(cpu.state.PC);
         }
 
         public void SetProgCntr(int pc)
@@ -73,31 +76,31 @@ namespace ATmegaSim.UI
         {
             if (opcode == 0x0000)
             {
-                return Disassembler.Nop(opcode);
+                return disasm.Nop(opcode);
             }
             if (((opcode & 0xFC00) >> 10) == 0b0011)
             {
-                return Disassembler.Add(opcode);
+                return disasm.Add(opcode);
             }
             if (((opcode & 0xFC00) >> 10) == 0b0111)
             {
-                return Disassembler.Adc(opcode);
+                return disasm.Adc(opcode);
             }
             if (((opcode & 0xF000) >> 12) == 0b1110)
             {
-                return Disassembler.Ldi(opcode);
+                return disasm.Ldi(opcode);
             }
             if (((opcode & 0xFC00) >> 10) == 0b100111)
             {
-                return Disassembler.Mul(opcode);
+                return disasm.Mul(opcode);
             }
             if (((opcode & 0xF800) >> 11) == 0b10111)
             {
-                return Disassembler.Out(opcode);
+                return disasm.Out(opcode);
             }
             if (((opcode & 0xF800) >> 11) == 0b10110)
             {
-                return Disassembler.In(opcode);
+                return disasm.In(opcode);
             }
 
             return "???";

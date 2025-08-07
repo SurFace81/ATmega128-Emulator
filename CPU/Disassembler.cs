@@ -8,12 +8,12 @@ namespace ATmegaSim.CPU
 {
     public class Disassembler
     {
-        public static string Nop(ushort opcode)
+        public string Nop(ushort opcode)
         {
             return $"NOP";
         }
 
-        public static string Add(ushort opcode)
+        public string Add(ushort opcode)
         {
             int d = (opcode >> 4) & 0x1F;
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
@@ -21,7 +21,7 @@ namespace ATmegaSim.CPU
             return $"ADD R{d}, R{r}";
         }
 
-        public static string Adc(ushort opcode)
+        public string Adc(ushort opcode)
         {
             int d = (opcode >> 4) & 0x1F;
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
@@ -29,7 +29,7 @@ namespace ATmegaSim.CPU
             return $"ADC R{d}, R{r}";
         }
 
-        public static string Ldi(ushort opcode)
+        public string Ldi(ushort opcode)
         {
             int d = 16 + ((opcode >> 4) & 0x0F);
             int k = (opcode & 0x0F) | ((opcode >> 4) & 0xF0);
@@ -37,7 +37,7 @@ namespace ATmegaSim.CPU
             return $"LDI R{d}, 0x{k:X2}";
         }
 
-        public static string Mul(ushort opcode)
+        public string Mul(ushort opcode)
         {
             int d = (opcode >> 4) & 0x1F;
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
@@ -45,7 +45,7 @@ namespace ATmegaSim.CPU
             return $"MUL R{d}, R{r}";
         }
 
-        public static string Out(ushort opcode)
+        public string Out(ushort opcode)
         {
             int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int r = (opcode >> 4) & 0x1F;
@@ -53,7 +53,7 @@ namespace ATmegaSim.CPU
             return $"OUT 0x{A.ToString("X2")}, R{r}";
         }
 
-        public static string In(ushort opcode)
+        public string In(ushort opcode)
         {
             int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int d = (opcode >> 4) & 0x1F;
