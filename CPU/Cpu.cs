@@ -15,6 +15,11 @@ namespace ATmegaSim.CPU
         private byte[] flashMemory = new byte[FLASH_SIZE];
         private int firmSize;
 
+        public Cpu()
+        {
+            InitializeIOHandlers();
+        }
+
         public struct SREG
         {
             public static bool C; // Carry flag
@@ -32,6 +37,8 @@ namespace ATmegaSim.CPU
         //private static IOPort PORTF = new IOPort();
         //private static IOPort PORTG = new IOPort();
         public static IOPort[] IOPorts = new IOPort[5] { new IOPort(), new IOPort(), new IOPort(), new IOPort(), new IOPort() };
+        private static readonly Dictionary<byte, Action<byte>> IOWriteHandlers = new Dictionary<byte, Action<byte>>();
+        private static readonly Dictionary<byte, Func<byte>> IOReadHandlers = new Dictionary<byte, Func<byte>>();
         public static ushort PC { get; set; }   // Program Counter
         public static uint CYCLES { get; set; }
 
@@ -84,7 +91,7 @@ namespace ATmegaSim.CPU
 
         public void Reset()
         {
-            Cpu.PC     = 0;
+            Cpu.PC = 0;
             Cpu.CYCLES = 0;
             Cpu.SREG.C = false;
             Cpu.SREG.Z = false;
@@ -94,7 +101,7 @@ namespace ATmegaSim.CPU
             Cpu.SREG.H = false;
             Cpu.SREG.T = false;
             Cpu.SREG.I = false;
-            Cpu.R      = new byte[32];
+            Cpu.R = new byte[32];
             Cpu.IORegs = new byte[64];
 
             InvokeOnClockCompleted();
@@ -138,6 +145,66 @@ namespace ATmegaSim.CPU
                 Commands.In(opcode);
                 cyclesToWait = 1;
             }
+        }
+
+        private static void InitializeIOHandlers()
+        {
+            // PORTA (0x1B - PORT, 0x1A - DDR, 0x19 - PIN)
+            IOWriteHandlers[0x1B] = value => IOPorts[0].WritePort(value);
+            IOWriteHandlers[0x1A] = value => IOPorts[0].WriteDDR(value);
+            IOReadHandlers[0x1B] = () => IOPorts[0].PORT;
+            IOReadHandlers[0x1A] = () => IOPorts[0].DDR;
+            IOReadHandlers[0x19] = () => IOPorts[0].ReadPin();
+
+            // PORTB (0x18 - PORT, 0x17 - DDR, 0x16 - PIN)
+            IOWriteHandlers[0x18] = value => IOPorts[1].WritePort(value);
+            IOWriteHandlers[0x17] = value => IOPorts[1].WriteDDR(value);
+            IOReadHandlers[0x18] = () => IOPorts[1].PORT;
+            IOReadHandlers[0x17] = () => IOPorts[1].DDR;
+            IOReadHandlers[0x16] = () => IOPorts[1].ReadPin();
+
+            // PORTC (0x15 - PORT, 0x14 - DDR, 0x13 - PIN)
+            IOWriteHandlers[0x15] = value => IOPorts[2].WritePort(value);
+            IOWriteHandlers[0x14] = value => IOPorts[2].WriteDDR(value);
+            IOReadHandlers[0x15] = () => IOPorts[2].PORT;
+            IOReadHandlers[0x14] = () => IOPorts[2].DDR;
+            IOReadHandlers[0x13] = () => IOPorts[2].ReadPin();
+
+            // PORTD (0x12 - PORT, 0x11 - DDR, 0x10 - PIN)
+            IOWriteHandlers[0x12] = value => IOPorts[3].WritePort(value);
+            IOWriteHandlers[0x11] = value => IOPorts[3].WriteDDR(value);
+            IOReadHandlers[0x12] = () => IOPorts[3].PORT;
+            IOReadHandlers[0x11] = () => IOPorts[3].DDR;
+            IOReadHandlers[0x10] = () => IOPorts[3].ReadPin();
+
+            // PORTE (0x03 - PORT, 0x02 - DDR, 0x01 - PIN)
+            IOWriteHandlers[0x03] = value => IOPorts[4].WritePort(value);
+            IOWriteHandlers[0x02] = value => IOPorts[4].WriteDDR(value);
+            IOReadHandlers[0x03] = () => IOPorts[4].PORT;
+            IOReadHandlers[0x02] = () => IOPorts[4].DDR;
+            IOReadHandlers[0x01] = () => IOPorts[4].ReadPin();
+        }
+
+        public static void WriteIO(byte address, byte value)
+        {
+            IORegs[address] = value;
+
+            if (IOWriteHandlers.ContainsKey(address))
+            {
+                IOWriteHandlers[address](value);
+            }
+        }
+
+        public static byte ReadIO(byte address)
+        {
+            if (IOReadHandlers.ContainsKey(address))
+            {
+                byte value = IOReadHandlers[address]();
+                IORegs[address] = value;
+                return value;
+            }
+
+            return IORegs[address];
         }
 
         private bool _shouldReset = false;

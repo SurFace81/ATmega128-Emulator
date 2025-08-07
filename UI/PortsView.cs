@@ -72,7 +72,7 @@ namespace ATmegaSim.UI
 
         public void UpdatePorts()
         {
-            SyncIOPorts();
+            //SyncIOPorts();
 
             // TODO: Надо бы сделать обозначения для разных направлений
             portAControl.SetPins(Cpu.IOPorts[PORTA].ReadPin());

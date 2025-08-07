@@ -91,7 +91,8 @@ namespace ATmegaSim.CPU
             int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int r = (opcode >> 4) & 0x1F;
 
-            Cpu.IORegs[A] = Cpu.R[r];
+            //Cpu.IORegs[A] = Cpu.R[r];
+            Cpu.WriteIO((byte)A, Cpu.R[r]);
         }
 
         public static void In(ushort opcode)
@@ -99,7 +100,8 @@ namespace ATmegaSim.CPU
             int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int d = (opcode >> 4) & 0x1F;
 
-            Cpu.R[d] = Cpu.IORegs[A];
+            //Cpu.R[d] = Cpu.IORegs[A];
+            Cpu.R[d] = Cpu.ReadIO((byte)A);
             MessageBox.Show(Convert.ToString(Cpu.R[d], 2).PadLeft(8));
         }
     }
