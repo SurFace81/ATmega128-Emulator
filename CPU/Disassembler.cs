@@ -8,6 +8,40 @@ namespace ATmegaSim.CPU
 {
     public class Disassembler
     {
+        public string DisasmInstruction(ushort opcode)
+        {
+            if (opcode == 0x0000)
+            {
+                return Nop(opcode);
+            }
+            if (((opcode & 0xFC00) >> 10) == 0b0011)
+            {
+                return Add(opcode);
+            }
+            if (((opcode & 0xFC00) >> 10) == 0b0111)
+            {
+                return Adc(opcode);
+            }
+            if (((opcode & 0xF000) >> 12) == 0b1110)
+            {
+                return Ldi(opcode);
+            }
+            if (((opcode & 0xFC00) >> 10) == 0b100111)
+            {
+                return Mul(opcode);
+            }
+            if (((opcode & 0xF800) >> 11) == 0b10111)
+            {
+                return Out(opcode);
+            }
+            if (((opcode & 0xF800) >> 11) == 0b10110)
+            {
+                return In(opcode);
+            }
+
+            return "???";
+        }
+
         public string Nop(ushort opcode)
         {
             return $"NOP";

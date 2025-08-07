@@ -17,8 +17,8 @@ namespace ATmegaSim.CPU
         private byte[] flashMemory = new byte[FLASH_SIZE];
         private int firmSize;
 
-        private static readonly Dictionary<byte, Action<byte>> IOWriteHandlers = new Dictionary<byte, Action<byte>>();
-        private static readonly Dictionary<byte, Func<byte>> IOReadHandlers = new Dictionary<byte, Func<byte>>();
+        private readonly Dictionary<byte, Action<byte>> IOWriteHandlers = new Dictionary<byte, Action<byte>>();
+        private readonly Dictionary<byte, Func<byte>> IOReadHandlers = new Dictionary<byte, Func<byte>>();
 
         private static Cpu _instance;
         private Commands commands;

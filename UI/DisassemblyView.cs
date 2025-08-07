@@ -74,36 +74,7 @@ namespace ATmegaSim.UI
 
         private string Disassemble(ushort opcode)
         {
-            if (opcode == 0x0000)
-            {
-                return disasm.Nop(opcode);
-            }
-            if (((opcode & 0xFC00) >> 10) == 0b0011)
-            {
-                return disasm.Add(opcode);
-            }
-            if (((opcode & 0xFC00) >> 10) == 0b0111)
-            {
-                return disasm.Adc(opcode);
-            }
-            if (((opcode & 0xF000) >> 12) == 0b1110)
-            {
-                return disasm.Ldi(opcode);
-            }
-            if (((opcode & 0xFC00) >> 10) == 0b100111)
-            {
-                return disasm.Mul(opcode);
-            }
-            if (((opcode & 0xF800) >> 11) == 0b10111)
-            {
-                return disasm.Out(opcode);
-            }
-            if (((opcode & 0xF800) >> 11) == 0b10110)
-            {
-                return disasm.In(opcode);
-            }
-
-            return "???";
+            return disasm.DisasmInstruction(opcode);
         }
     }
 }
