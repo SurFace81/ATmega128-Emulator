@@ -16,10 +16,13 @@ namespace ATmegaSim.UI
     public partial class DisassemblyView : DockContent
     {
         private List<byte> mem = new List<byte>();
-
-        public DisassemblyView()
+        private Cpu cpu;
+        private Disassembler disasm;
+        public DisassemblyView(Cpu cpu)
         {
             InitializeComponent();
+            this.cpu = cpu;
+            this.disasm = new Disassembler();
             DisplayDisasm(HexParser.FirmFile);
         }
 
@@ -40,7 +43,7 @@ namespace ATmegaSim.UI
             //}
 
             disasmTextBox.Text = sb.ToString();
-            SetProgCntr(Cpu.PC);
+            SetProgCntr(cpu.state.PC);
         }
 
         public void SetProgCntr(int pc)
@@ -71,28 +74,7 @@ namespace ATmegaSim.UI
 
         private string Disassemble(ushort opcode)
         {
-            if (((opcode & 0xFC00) >> 10) == 0b0011)
-            {
-                return Disassembler.Add(opcode);
-            }
-            if (((opcode & 0xFC00) >> 10) == 0b0111)
-            {
-                return Disassembler.Adc(opcode);
-            }
-            if (((opcode & 0xF000) >> 12) == 0b1110)
-            {
-                return Disassembler.Ldi(opcode);
-            }
-            if (((opcode & 0xFC00) >> 10) == 0b100111)
-            {
-                return Disassembler.Mul(opcode);
-            }
-            if (((opcode & 0xF800) >> 11) == 0b10111)
-            {
-                return Disassembler.Out(opcode);
-            }
-
-            return "???";
+            return disasm.DisasmInstruction(opcode);
         }
     }
 }

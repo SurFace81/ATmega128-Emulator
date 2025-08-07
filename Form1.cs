@@ -23,6 +23,8 @@ namespace ATmegaSim
         {
             InitializeComponent();
             dockPanel.Theme = new VS2015LightTheme();
+            atmega128 = Cpu.Instance;
+            systemClock = new Clock();
 
             var mv = new MemoryView();
             mv.FormClosed += ((object sender, FormClosedEventArgs e) => memViews.Remove((MemoryView)sender));
@@ -30,12 +32,10 @@ namespace ATmegaSim
             memViews[memViews.Count - 1].Show(dockPanel, DockState.Document);
             memViews[memViews.Count - 1].SetProgCntr(0);
 
-            var rv = new RegistersView();
+            var rv = new RegistersView(atmega128);
             rv.FormClosed += ((object sender, FormClosedEventArgs e) => regsViews.Remove((RegistersView)sender));
             regsViews.Add(rv);
             regsViews[regsViews.Count - 1].Show(dockPanel, DockState.DockRight);
-
-            systemClock = new Clock();
         }
 
         private void Atmega128_OnClockCompleted(object sender, EventArgs e)
@@ -45,9 +45,9 @@ namespace ATmegaSim
                 foreach (var regsView in regsViews)
                     regsView.UpdateRegisters();
                 foreach (var memView in memViews)
-                    memView.SetProgCntr(Cpu.PC);
+                    memView.SetProgCntr(atmega128.state.PC);
                 foreach (var disView in disViews)
-                    disView.SetProgCntr(Cpu.PC);
+                    disView.SetProgCntr(atmega128.state.PC);
                 foreach (var portView in portsViews)
                     portView.UpdatePorts();
             });
@@ -79,13 +79,12 @@ namespace ATmegaSim
                 firmPathText.Text = openFirmDlg.FileName;
                 HexParser.Parse(openFirmDlg.FileName);
 
-                atmega128 = new Cpu();
                 if (!atmega128.LoadFirm(HexParser.FirmFile))
                 {
                     MessageBox.Show($"Размер прошивки {HexParser.FirmFile.Count} байт превышает размер FLASH памяти ATmega128 (128Кб)!");
                     return;
                 }
-                Cpu.OnClockCompleted += Atmega128_OnClockCompleted;
+                atmega128.OnClockCompleted += Atmega128_OnClockCompleted;
                 systemClock.Register(atmega128);
 
                 foreach (var memView in memViews)
@@ -113,7 +112,7 @@ namespace ATmegaSim
         {
             if (regsViews.Count >= 4) return;
 
-            var rv = new RegistersView();
+            var rv = new RegistersView(atmega128);
             rv.FormClosed += ((object sender, FormClosedEventArgs e) => regsViews.Remove((RegistersView)sender));
             regsViews.Add(rv);
             regsViews[regsViews.Count - 1].Show(dockPanel, DockState.DockRight);
@@ -134,7 +133,7 @@ namespace ATmegaSim
         {
             if (disViews.Count >= 4) return;
 
-            var dv = new DisassemblyView();
+            var dv = new DisassemblyView(atmega128);
             dv.FormClosed += ((object sender, FormClosedEventArgs e) => disViews.Remove((DisassemblyView)sender));
             disViews.Add(dv);
             disViews[disViews.Count - 1].Show(dockPanel, DockState.DockRight);
@@ -143,7 +142,7 @@ namespace ATmegaSim
         {
             if (portsViews.Count >= 4) return;
 
-            var pv = new PortsView();
+            var pv = new PortsView(atmega128);
             pv.FormClosed += ((object sender, FormClosedEventArgs e) => portsViews.Remove((PortsView)sender));
             pv.FormBorderStyle = FormBorderStyle.FixedDialog;
             portsViews.Add(pv);

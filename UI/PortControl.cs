@@ -46,6 +46,8 @@ namespace ATmegaSim.UI
                     pins &= (byte)~(1 << Convert.ToInt32(s.Tag));
                 }
             }
+
+            InvokeOnPinsStateChanged(pins);
         }
 
         public void SetPins(byte value)
@@ -73,6 +75,13 @@ namespace ATmegaSim.UI
             }
 
             RefreshPins();
+        }
+
+        public event EventHandler<byte> OnPinsStateChanged;
+        public void InvokeOnPinsStateChanged(byte state)
+        {
+            EventHandler<byte> handler = OnPinsStateChanged;
+            if (handler != null) handler(this, state);
         }
 
         [Browsable(true)]
