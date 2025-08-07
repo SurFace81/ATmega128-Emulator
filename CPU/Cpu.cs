@@ -72,41 +72,7 @@ namespace ATmegaSim.CPU
         int cyclesToWait = 0;
         private void ExecInstruction(ushort opcode)
         {
-            if (opcode == 0x0000)
-            {
-                //commands.Nop();
-                cyclesToWait = 1;
-            }
-            if (((opcode & 0xFC00) >> 10) == 0b0011)
-            {
-                commands.Add(opcode);
-                cyclesToWait = 1;
-            }
-            if (((opcode & 0xFC00) >> 10) == 0b0111)
-            {
-                commands.Adc(opcode);
-                cyclesToWait = 1;
-            }
-            if (((opcode & 0xF000) >> 12) == 0b1110)
-            {
-                commands.Ldi(opcode);
-                cyclesToWait = 1;
-            }
-            if (((opcode & 0xFC00) >> 10) == 0b100111)
-            {
-                commands.Mul(opcode);
-                cyclesToWait = 2;
-            }
-            if (((opcode & 0xF800) >> 11) == 0b10111)
-            {
-                commands.Out(opcode);
-                cyclesToWait = 1;
-            }
-            if (((opcode & 0xF800) >> 11) == 0b10110)
-            {
-                commands.In(opcode);
-                cyclesToWait = 1;
-            }
+            cyclesToWait = commands.ExecInsruction(opcode);
         }
 
         private void InitializeIOHandlers()

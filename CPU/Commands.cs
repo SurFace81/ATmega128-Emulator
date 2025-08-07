@@ -17,6 +17,47 @@ namespace ATmegaSim.CPU
             this.cpuState = cpu.state;
         }
 
+        public int ExecInsruction(ushort opcode)
+        {
+            if (opcode == 0x0000)
+            {
+                //Nop();
+                return 1;
+            }
+            if (((opcode & 0xFC00) >> 10) == 0b0011)
+            {
+                Add(opcode);
+                return 1;
+            }
+            if (((opcode & 0xFC00) >> 10) == 0b0111)
+            {
+                Adc(opcode);
+                return 1;
+            }
+            if (((opcode & 0xF000) >> 12) == 0b1110)
+            {
+                Ldi(opcode);
+                return 1;
+            }
+            if (((opcode & 0xFC00) >> 10) == 0b100111)
+            {
+                Mul(opcode);
+                return 2;
+            }
+            if (((opcode & 0xF800) >> 11) == 0b10111)
+            {
+                Out(opcode);
+                return 1;
+            }
+            if (((opcode & 0xF800) >> 11) == 0b10110)
+            {
+                In(opcode);
+                return 1;
+            }
+
+            return 1;
+        }
+
         public void Add(ushort opcode)
         {
             int d = (opcode >> 4) & 0x1F;
