@@ -60,6 +60,12 @@ namespace ATmegaSim.CPU
                 Sts(opcode, cpu.GetOpcodeAt(cpuState.PC));
                 return 2;
             }
+            if (((opcode & 0xFE00) >> 9) == 0b1001000)
+            {
+                cpuState.PC += 2;
+                Lds(opcode, cpu.GetOpcodeAt(cpuState.PC));
+                return 2;
+            }
 
             return 1;
         }
@@ -177,6 +183,29 @@ namespace ATmegaSim.CPU
             else // SRAM
             {
                 cpuState.SRAM[k - 0x100] = cpuState.R[r];
+            }
+        }
+
+        public void Lds(ushort opcode1, ushort opcode2)
+        {
+            int d = (opcode1 & 0x1F0) >> 4;
+            ushort k = opcode2;
+
+            if (k < 0x20)   // R0 - R31
+            {
+                cpuState.R[d] = cpuState.R[k];
+            }
+            else if (k < 0x60) // IO Regs
+            {
+                cpuState.R[d] = cpuState.IORegs[k - 0x20];
+            }
+            else if (k < 0x100) // Ext IO Regs
+            {
+                cpuState.R[d] = cpuState.ExtIORegs[k - 0x60];
+            }
+            else // SRAM
+            {
+                cpuState.R[d] = cpuState.SRAM[k - 0x100];
             }
         }
     }

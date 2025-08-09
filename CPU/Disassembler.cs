@@ -43,6 +43,10 @@ namespace ATmegaSim.CPU
             {
                 return Sts(opcode1, opcode2);
             }
+            if (((opcode1 & 0xFE00) >> 9) == 0b1001000)
+            {
+                return Lds(opcode1, opcode2);
+            }
 
             return "???";
         }
@@ -104,6 +108,11 @@ namespace ATmegaSim.CPU
         {
             int r = (opcode1 & 0x1F0) >> 4;
             return $"STS 0x{opcode2:X4}, R{r}";
+        }
+        public string Lds(ushort opcode1, ushort opcode2)
+        {
+            int d = (opcode1 & 0x1F0) >> 4;
+            return $"STS R{d}, 0x{opcode2:X4}";
         }
     }
 }
