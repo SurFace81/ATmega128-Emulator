@@ -16,6 +16,10 @@ namespace ATmegaSim.CPU
             {
                 return Nop(opcode1);
             }
+            if (opcode1 == 0x9598)
+            {
+                return Break(opcode1);
+            }
             if (((opcode1 & 0xFC00) >> 10) == 0b0011)
             {
                 return Add(opcode1);
@@ -88,17 +92,61 @@ namespace ATmegaSim.CPU
             {
                 return Ld10(opcode1);
             }
-            if ((opcode1 & 0xD208) == 0x8000 && (((opcode1 & 0x000F) != 0x0000) || ((opcode1 & 0xF000) != 1000)))
+            if ((opcode1 & 0xD208) == 0x8000 && (((opcode1 & 0x000F) != 0x0000) || ((opcode1 & 0xF000) != 0b1000)))
             {
                 return Ld11(opcode1);
-            }
-            if (((opcode1 & 0xFE00) >> 9) == 0b1001001)
-            {
-                return Sts(opcode1, opcode2);
             }
             if (((opcode1 & 0xFE00) >> 9) == 0b1001000)
             {
                 return Lds(opcode1, opcode2);
+            }
+            if ((opcode1 & 0xFE0F) == 0x920C)
+            {
+                return St1(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x920D)
+            {
+                return St2(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x920E)
+            {
+                return St3(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x8208)
+            {
+                return St4(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9209)
+            {
+                return St5(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x920A)
+            {
+                return St6(opcode1);
+            }
+            if ((opcode1 & 0xD208) == 0x8208 && (((opcode1 & 0x000F) != 0x0000) || ((opcode1 & 0x0F00) != 0b0010)))
+            {
+                return St7(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x8200)
+            {
+                return St8(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9201)
+            {
+                return St9(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9202)
+            {
+                return St10(opcode1);
+            }
+            if ((opcode1 & 0xD208) == 0x8200 && (((opcode1 & 0x000F) != 0x0000) || ((opcode1 & 0xF000) != 0b1000)))
+            {
+                return St11(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9200)
+            {
+                return Sts(opcode1, opcode2);
             }
 
             return "???";
@@ -107,6 +155,11 @@ namespace ATmegaSim.CPU
         private string Nop(ushort opcode)
         {
             return $"NOP";
+        }
+
+        private string Break(ushort opcode)
+        {
+            return $"BREAK";
         }
 
         private string Add(ushort opcode)
@@ -252,16 +305,96 @@ namespace ATmegaSim.CPU
             return $"LDD    R{d}, Z+{q}";
         }
 
+        private string Lds(ushort opcode1, ushort opcode2)
+        {
+            int d = (opcode1 & 0x1F0) >> 4;
+
+            return $"LDS    R{d}, 0x{opcode2:X4}";
+        }
+
+        private string St1(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            return $"ST     X, R{r}";
+        }
+
+        private string St2(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            return $"ST     X+, R{r}";
+        }
+
+        private string St3(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            return $"ST     -X, R{r}";
+        }
+
+        private string St4(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            return $"ST     Y, R{r}";
+        }
+
+        private string St5(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            return $"ST     Y+, R{r}";
+        }
+
+        private string St6(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            return $"ST     -Y, R{r}";
+        }
+
+        private string St7(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+            int q = (opcode & 0x07) | ((opcode & 0xC00) >> 7) | ((opcode & 0x2000) >> 8);
+
+            return $"STD    Y+{q}, R{r}";
+        }
+
+        private string St8(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            return $"ST     Z, R{r}";
+        }
+
+        private string St9(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            return $"ST     Z+, R{r}";
+        }
+
+        private string St10(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            return $"ST     -Z, R{r}";
+        }
+
+        private string St11(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+            int q = (opcode & 0x07) | ((opcode & 0xC00) >> 7) | ((opcode & 0x2000) >> 8);
+
+            return $"STD    Z+{q}, R{r}";
+        }
+
         private string Sts(ushort opcode1, ushort opcode2)
         {
             int r = (opcode1 & 0x1F0) >> 4;
             return $"STS    0x{opcode2:X4}, R{r}";
-        }
-
-        private string Lds(ushort opcode1, ushort opcode2)
-        {
-            int d = (opcode1 & 0x1F0) >> 4;
-            return $"STS    R{d}, 0x{opcode2:X4}";
         }
     }
 }

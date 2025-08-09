@@ -19,9 +19,9 @@ namespace ATmegaSim.CPU
 
         public int ExecInsruction(ushort opcode)
         {
-            if (opcode == 0x0000)
+            if (opcode == 0x0000 || opcode == 0x9598)
             {
-                //Nop();
+                //Nop(); //Break();
                 return 1;
             }
             if (((opcode & 0xFC00) >> 10) == 0b0011)
@@ -114,21 +114,76 @@ namespace ATmegaSim.CPU
                 Ld10(opcode);
                 return 2;
             }
-            if ((opcode & 0xD208) == 0x8000 && (((opcode & 0x000F) != 0x0000) || ((opcode & 0xF000) != 1000)))
+            if ((opcode & 0xD208) == 0x8000 && (((opcode & 0x000F) != 0x0000) || ((opcode & 0xF000) != 0b1000)))
             {
                 Ld11(opcode);
-                return 2;
-            }
-            if (((opcode & 0xFE00) >> 9) == 0b1001001)
-            {
-                cpuState.PC += 2; // Команда занимает 2 слова, учитываем одно из них
-                Sts(opcode, cpu.GetOpcodeAt(cpuState.PC));
                 return 2;
             }
             if (((opcode & 0xFE00) >> 9) == 0b1001000)
             {
                 cpuState.PC += 2;
                 Lds(opcode, cpu.GetOpcodeAt(cpuState.PC));
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x920C)
+            {
+                St1(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x920D)
+            {
+                St2(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x920E)
+            {
+                St3(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x8208)
+            {
+                St4(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x9209)
+            {
+                St5(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x920A)
+            {
+                St6(opcode);
+                return 2;
+            }
+            if ((opcode & 0xD208) == 0x8208 && (((opcode & 0x000F) != 0x0000) || ((opcode & 0xF000) != 0b1000)))
+            {
+                St7(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x8200)
+            {
+                St8(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x9201)
+            {
+                St9(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x9202)
+            {
+                St10(opcode);
+                return 2;
+            }
+            if ((opcode & 0xD208) == 0x8200 && (((opcode & 0x000F) != 0x0000) || ((opcode & 0xF000) != 0b1000)))
+            {
+                St11(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x9200)
+            {
+                cpuState.PC += 2; // Команда занимает 2 слова, учитываем одно из них
+                Sts(opcode, cpu.GetOpcodeAt(cpuState.PC));
                 return 2;
             }
 
@@ -324,20 +379,99 @@ namespace ATmegaSim.CPU
             cpuState.R[d] = cpu.GetDataMem((ushort)(cpuState.Z + q));
         }
 
-        private void Sts(ushort opcode1, ushort opcode2)
-        {
-            int r = (opcode1 & 0x1F0) >> 4;
-            ushort k = opcode2;
-
-            cpu.SetDataMem(k, cpuState.R[r]);
-        }
-
         private void Lds(ushort opcode1, ushort opcode2)
         {
             int d = (opcode1 & 0x1F0) >> 4;
             ushort k = opcode2;
 
             cpuState.R[d] = cpu.GetDataMem(k);
+        }
+
+        private void St1(ushort opcode) // ST X, Rr
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            cpu.SetDataMem(cpuState.X, cpuState.R[r]);
+        }
+
+        private void St2(ushort opcode) // ST X+, Rr
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            cpu.SetDataMem(cpuState.X++, cpuState.R[r]);
+        }
+
+        private void St3(ushort opcode) // ST -X, Rr
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            cpu.SetDataMem(--cpuState.X, cpuState.R[r]);
+        }
+
+        private void St4(ushort opcode) // ST Y, Rr
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            cpu.SetDataMem(cpuState.Y, cpuState.R[r]);
+        }
+
+        private void St5(ushort opcode) // ST Y+, Rr
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            cpu.SetDataMem(cpuState.Y++, cpuState.R[r]);
+        }
+
+        private void St6(ushort opcode) // ST -Y, Rr
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            cpu.SetDataMem(--cpuState.Y, cpuState.R[r]);
+        }
+
+        private void St7(ushort opcode) // STD Y+q, R
+        {
+            int r = (opcode & 0x1F0) >> 4;
+            int q = (opcode & 0x07) | ((opcode & 0xC00) >> 7) | ((opcode & 0x2000) >> 8);
+
+            cpu.SetDataMem((ushort)(cpuState.Y + q), cpuState.R[r]);
+        }
+
+        private void St8(ushort opcode) // ST Z, Rr
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            cpu.SetDataMem(cpuState.Z, cpuState.R[r]);
+        }
+
+        private void St9(ushort opcode) // ST Z+, Rr
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            cpu.SetDataMem(cpuState.Z++, cpuState.R[r]);
+        }
+
+        private void St10(ushort opcode) // ST -Z, Rr
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            cpu.SetDataMem(--cpuState.Z, cpuState.R[r]);
+        }
+
+        private void St11(ushort opcode) // STD Z+q, R
+        {
+            int r = (opcode & 0x1F0) >> 4;
+            int q = (opcode & 0x07) | ((opcode & 0xC00) >> 7) | ((opcode & 0x2000) >> 8);
+
+            cpu.SetDataMem((ushort)(cpuState.Z + q), cpuState.R[r]);
+        }
+
+        private void Sts(ushort opcode1, ushort opcode2)
+        {
+            int r = (opcode1 & 0x1F0) >> 4;
+            ushort k = opcode2;
+
+            cpu.SetDataMem(k, cpuState.R[r]);
         }
     }
 }
