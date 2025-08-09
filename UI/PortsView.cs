@@ -51,11 +51,11 @@ namespace ATmegaSim.UI
         public void UpdatePorts()
         {
             // TODO: Надо бы сделать обозначения для разных направлений
-            portAControl.SetPins(cpuState.PORTA.ReadPin());
-            portBControl.SetPins(cpuState.PORTB.ReadPin());
-            portCControl.SetPins(cpuState.PORTC.ReadPin());
-            portDControl.SetPins(cpuState.PORTD.ReadPin());
-            portEControl.SetPins(cpuState.PORTE.ReadPin());
+            portAControl.SetPins(cpuState.PORTA.ReadPin(), cpuState.PORTA.DDR);
+            portBControl.SetPins(cpuState.PORTB.ReadPin(), cpuState.PORTB.DDR);
+            portCControl.SetPins(cpuState.PORTC.ReadPin(), cpuState.PORTC.DDR);
+            portDControl.SetPins(cpuState.PORTD.ReadPin(), cpuState.PORTD.DDR);
+            portEControl.SetPins(cpuState.PORTE.ReadPin(), cpuState.PORTE.DDR);
         }
     }
 }

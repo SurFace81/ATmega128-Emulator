@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,35 +9,39 @@ namespace ATmegaSim.CPU
 {
     public class Disassembler
     {
-        public string DisasmInstruction(ushort opcode)
+        public string DisasmInstruction(ushort opcode1, ushort opcode2 = 0)
         {
-            if (opcode == 0x0000)
+            if (opcode1 == 0x0000)
             {
-                return Nop(opcode);
+                return Nop(opcode1);
             }
-            if (((opcode & 0xFC00) >> 10) == 0b0011)
+            if (((opcode1 & 0xFC00) >> 10) == 0b0011)
             {
-                return Add(opcode);
+                return Add(opcode1);
             }
-            if (((opcode & 0xFC00) >> 10) == 0b0111)
+            if (((opcode1 & 0xFC00) >> 10) == 0b0111)
             {
-                return Adc(opcode);
+                return Adc(opcode1);
             }
-            if (((opcode & 0xF000) >> 12) == 0b1110)
+            if (((opcode1 & 0xF000) >> 12) == 0b1110)
             {
-                return Ldi(opcode);
+                return Ldi(opcode1);
             }
-            if (((opcode & 0xFC00) >> 10) == 0b100111)
+            if (((opcode1 & 0xFC00) >> 10) == 0b100111)
             {
-                return Mul(opcode);
+                return Mul(opcode1);
             }
-            if (((opcode & 0xF800) >> 11) == 0b10111)
+            if (((opcode1 & 0xF800) >> 11) == 0b10111)
             {
-                return Out(opcode);
+                return Out(opcode1);
             }
-            if (((opcode & 0xF800) >> 11) == 0b10110)
+            if (((opcode1 & 0xF800) >> 11) == 0b10110)
             {
-                return In(opcode);
+                return In(opcode1);
+            }
+            if (((opcode1 & 0xFE00) >> 9) == 0b1001001)
+            {
+                return Sts(opcode1, opcode2);
             }
 
             return "???";
@@ -84,7 +89,7 @@ namespace ATmegaSim.CPU
             int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int r = (opcode >> 4) & 0x1F;
 
-            return $"OUT 0x{A.ToString("X2")}, R{r}";
+            return $"OUT 0x{A:X2}, R{r}";
         }
 
         public string In(ushort opcode)
@@ -92,7 +97,13 @@ namespace ATmegaSim.CPU
             int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int d = (opcode >> 4) & 0x1F;
 
-            return $"IN R{d}, 0x{A.ToString("X2")}";
+            return $"IN R{d}, 0x{A:X2}";
+        }
+
+        public string Sts(ushort opcode1, ushort opcode2)
+        {
+            int r = (opcode1 & 0x1F0) >> 4;
+            return $"STS 0x{opcode2:X4}, R{r}";
         }
     }
 }

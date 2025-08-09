@@ -63,9 +63,9 @@ namespace ATmegaSim.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap pin_off {
+        internal static System.Drawing.Bitmap pin_off_in {
             get {
-                object obj = ResourceManager.GetObject("pin_off", resourceCulture);
+                object obj = ResourceManager.GetObject("pin_off_in", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,29 @@ namespace ATmegaSim.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap pin_on {
+        internal static System.Drawing.Bitmap pin_off_out {
             get {
-                object obj = ResourceManager.GetObject("pin_on", resourceCulture);
+                object obj = ResourceManager.GetObject("pin_off_out", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap pin_on_in {
+            get {
+                object obj = ResourceManager.GetObject("pin_on_in", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap pin_on_out {
+            get {
+                object obj = ResourceManager.GetObject("pin_on_out", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

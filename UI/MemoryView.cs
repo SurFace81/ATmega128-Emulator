@@ -15,13 +15,19 @@ namespace ATmegaSim.UI
 {
     public partial class MemoryView : DockContent
     {
-        const int BYTES_PER_ROW = 16;
+        private const int BYTES_PER_ROW = 16;
+        private const int CODE_MEM = 0, DATA_MEM = 1;
         private List<byte> firm;
 
-        public MemoryView()
+        private Cpu cpu;
+        private CpuState cpuState;
+        public MemoryView(Cpu cpu)
         {
             InitializeComponent();
+            this.cpu = cpu;
+            this.cpuState = cpu.state;
             DisplayEmpty();
+            memZoneCb.SelectedIndex = 0;
         }
 
         private void DisplayEmpty()
@@ -31,8 +37,31 @@ namespace ATmegaSim.UI
 
         public void DisplayFirm(List<byte> firm)
         {
+            if (memZoneCb.SelectedIndex != CODE_MEM) return;
+            
             this.firm = firm;
-            DisplayMemory(firm, 0x20000);
+            if (firm != null)
+            {
+                DisplayMemory(firm, Cpu.FLASH_SIZE);
+            }
+            else
+            {
+                DisplayMemory(new byte[0], Cpu.FLASH_SIZE);
+            }
+        }
+
+        public void DisplayData()
+        {
+            firmTextBox.SelectAll();
+            firmTextBox.SelectionBackColor = firmTextBox.BackColor;
+            firmTextBox.SelectionColor = firmTextBox.ForeColor;
+
+            List<byte> data = new List<byte>();
+            data.AddRange(cpuState.R);
+            data.AddRange(cpuState.IORegs);
+            data.AddRange(cpuState.ExtIORegs);
+            data.AddRange(cpuState.SRAM);
+            DisplayMemory(data, Cpu.DATA_SIZE);
         }
 
         private void DisplayMemory(IReadOnlyList<byte> data, int limit)
@@ -73,6 +102,8 @@ namespace ATmegaSim.UI
 
         public void SetProgCntr(int pc)
         {
+            if (memZoneCb.SelectedIndex != CODE_MEM) return;
+
             if (firm != null && pc >= firm.Count)
             {
                 pc = 0;
@@ -96,6 +127,27 @@ namespace ATmegaSim.UI
             firmTextBox.SelectionLength = 5;
             firmTextBox.SelectionBackColor = Color.Lime;
             firmTextBox.SelectionColor = Color.Black;
+        }
+
+        public void UpdateOnClock(int pc)
+        {
+            if (memZoneCb.SelectedIndex == CODE_MEM)
+                SetProgCntr(pc);
+            if (memZoneCb.SelectedIndex == DATA_MEM)
+                DisplayData();
+        }
+
+        private void memZoneCb_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (memZoneCb.SelectedIndex)
+            {
+                case CODE_MEM:
+                    DisplayFirm(firm);
+                    break;
+                case DATA_MEM:
+                    DisplayData();
+                    break;
+            }
         }
     }
 }

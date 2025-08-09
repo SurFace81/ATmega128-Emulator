@@ -12,10 +12,10 @@ namespace ATmegaSim.ClockSys
         private List<IClockSink> subscribers = new List<IClockSink>();
 
         System.Timers.Timer execTimer;
-        public Clock(double freq = 1) // 1 Hz 
+        public Clock(int delay)
         {
             execTimer = new System.Timers.Timer();
-            execTimer.Interval = 1000 / freq;   // in ms
+            execTimer.Interval = delay;
             execTimer.Elapsed += Tick;
             execTimer.AutoReset = true;
         }
@@ -26,6 +26,11 @@ namespace ATmegaSim.ClockSys
             {
                 s.OnClock();
             }
+        }
+
+        public void ChangeClockDelay(int delay)
+        {
+            execTimer.Interval = delay;
         }
 
         public void Register(IClockSink sink)
