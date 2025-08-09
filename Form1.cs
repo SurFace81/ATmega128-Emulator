@@ -24,9 +24,9 @@ namespace ATmegaSim
             InitializeComponent();
             dockPanel.Theme = new VS2015LightTheme();
             atmega128 = Cpu.Instance;
-            systemClock = new Clock();
+            systemClock = new Clock(Convert.ToInt32(delayTextBox.Text));
 
-            var mv = new MemoryView();
+            var mv = new MemoryView(atmega128);
             mv.FormClosed += ((object sender, FormClosedEventArgs e) => memViews.Remove((MemoryView)sender));
             memViews.Add(mv);
             memViews[memViews.Count - 1].Show(dockPanel, DockState.Document);
@@ -40,27 +40,40 @@ namespace ATmegaSim
 
         private void Atmega128_OnClockCompleted(object sender, EventArgs e)
         {
-            Invoke((MethodInvoker)delegate
+            try
             {
-                foreach (var regsView in regsViews)
-                    regsView.UpdateRegisters();
-                foreach (var memView in memViews)
-                    memView.SetProgCntr(atmega128.state.PC);
-                foreach (var disView in disViews)
-                    disView.SetProgCntr(atmega128.state.PC);
-                foreach (var portView in portsViews)
-                    portView.UpdatePorts();
-            });
+                Invoke((MethodInvoker)delegate
+                {
+                    foreach (var regsView in regsViews)
+                        regsView.UpdateRegisters();
+                    foreach (var memView in memViews)
+                        memView.UpdateOnClock(atmega128.state.PC);
+                    foreach (var disView in disViews)
+                        disView.SetProgCntr(atmega128.state.PC);
+                    foreach (var portView in portsViews)
+                        portView.UpdatePorts();
+                });
+            }
+            catch { }
         }
 
+        private bool firmOpened = false;
         private void runBtn_Click(object sender, EventArgs e)
         {
+            if (!firmOpened)
+                return;
+
             stopBtn.Enabled = true;
             runBtn.Enabled = false;
             systemClock.Start();
         }
 
         private void stopBtn_Click(object sender, EventArgs e)
+        {
+            Stop();
+        }
+
+        private void Stop()
         {
             stopBtn.Enabled = false;
             runBtn.Enabled = true;
@@ -94,18 +107,32 @@ namespace ATmegaSim
 
                 resetBtn.Enabled = true;
                 stepBtn.Enabled = true;
+
+                firmOpened = true;
             }
         }
 
         private void closeMenuItem_Click(object sender, EventArgs e)
         {
+            if (!firmOpened)
+                return;
+
+            Stop();
+
             HexParser.FirmFile = new List<byte>();
+            firmPathText.Text = "";
+            atmega128?.LoadFirm(HexParser.FirmFile);
+            atmega128?.Reset();
 
             foreach (var memView in memViews)
                 memView.DisplayFirm(HexParser.FirmFile);
+            foreach (var disView in disViews)
+                disView.DisplayDisasm(HexParser.FirmFile);
 
             resetBtn.Enabled = false;
             stepBtn.Enabled = false;
+
+            firmOpened = false;
         }
 
         private void registersMenuItem_Click(object sender, EventArgs e)
@@ -122,7 +149,7 @@ namespace ATmegaSim
         {
             if(memViews.Count >= 4) return;
 
-            var mv = new MemoryView();
+            var mv = new MemoryView(atmega128);
             mv.FormClosed += ((object sender, FormClosedEventArgs e) => memViews.Remove((MemoryView)sender));
             memViews.Add(mv);
             memViews[memViews.Count - 1].Show(dockPanel, DockState.DockRight);
@@ -146,7 +173,8 @@ namespace ATmegaSim
             pv.FormClosed += ((object sender, FormClosedEventArgs e) => portsViews.Remove((PortsView)sender));
             pv.FormBorderStyle = FormBorderStyle.FixedDialog;
             portsViews.Add(pv);
-            portsViews[portsViews.Count - 1].Show(dockPanel, DockState.Float);
+            dockPanel.DefaultFloatWindowSize = new Size(550, 400);
+            portsViews[portsViews.Count - 1].Show(dockPanel, DockState.Float);            
         }
 
         private void stepBtn_Click(object sender, EventArgs e)
@@ -157,6 +185,23 @@ namespace ATmegaSim
         private void resetBtn_Click(object sender, EventArgs e)
         {
             atmega128?.Reset();
+        }
+
+        private void delayTextBox_TextChanged(object sender, EventArgs e)
+        {
+            var tb = sender as ToolStripTextBox;
+
+            if (string.IsNullOrEmpty(tb.Text))
+                return;
+
+            if (!char.IsDigit(tb.Text[tb.Text.Length - 1]))
+            {
+                tb.Text = tb.Text.Substring(0, tb.Text.Length - 1);
+                tb.SelectionStart = tb.Text.Length;
+                return;
+            }
+
+            systemClock.ChangeClockDelay(Convert.ToInt32(delayTextBox.Text));
         }
     }
 }

@@ -13,9 +13,13 @@ namespace ATmegaSim.UI
 {
     public partial class PortControl : UserControl
     {
-        private readonly Image truePic = Properties.Resources.pin_on;
-        private readonly Image falsePic = Properties.Resources.pin_off;
+        private readonly Image truePicIn = Properties.Resources.pin_on_in;
+        private readonly Image falsePicIn = Properties.Resources.pin_off_in;
+        private readonly Image truePicOut = Properties.Resources.pin_on_out;
+        private readonly Image falsePicOut = Properties.Resources.pin_off_out;
         private int _pinCount = 8;
+        private byte ddrMask = 0;
+        private ToolTip tip = new ToolTip();
 
         [Browsable(false)]
         public byte pins { get; private set; }
@@ -34,25 +38,23 @@ namespace ATmegaSim.UI
         {
             if (sender is PictureBox s)
             {
-                bool newState = s.BackgroundImage != truePic;
-                s.BackgroundImage = newState ? truePic : falsePic;
+                byte offset = (byte)(1 << Convert.ToInt32(s.Tag));
+                bool newState = s.BackgroundImage != truePicIn;
+                s.BackgroundImage = newState ? truePicIn : falsePicIn;
 
                 if (newState)
-                {
-                    pins |= (byte)(1 << Convert.ToInt32(s.Tag));
-                }
+                    pins |= offset;
                 else
-                {
-                    pins &= (byte)~(1 << Convert.ToInt32(s.Tag));
-                }
+                    pins &= offset;
             }
 
             InvokeOnPinsStateChanged(pins);
         }
 
-        public void SetPins(byte value)
+        public void SetPins(byte value, byte ddrMask)
         {
             pins = value;
+            this.ddrMask = ddrMask;
             RefreshPins();
         }
 
@@ -61,7 +63,7 @@ namespace ATmegaSim.UI
             for (int i = 0; i < 8; i++)
             {
                 bool isSet = ((pins >> i) & 1) == 1;
-                pinBoxes[i].BackgroundImage = isSet ? truePic : falsePic;
+                pinBoxes[i].BackgroundImage = isSet ? truePicIn : falsePicIn;
             }
         }
 

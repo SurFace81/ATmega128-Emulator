@@ -13,7 +13,9 @@ namespace ATmegaSim.CPU
 {
     public class Cpu : IClockSink
     {
-        public const int FLASH_SIZE = 0x20000; // 0x20000 - total, 0x2000 high - bootloader
+        public const int FLASH_SIZE = 0x20000;
+        public const int DATA_SIZE = 0x10FF;
+        public const int IO_SIZE = 0x40;
         private byte[] flashMemory = new byte[FLASH_SIZE];
         private int firmSize;
 
@@ -65,6 +67,8 @@ namespace ATmegaSim.CPU
             state.SREG = new CpuState.SREGStruct();
             Array.Clear(state.R, 0, 32);
             Array.Clear(state.IORegs, 0, 64);
+            Array.Clear(state.ExtIORegs, 0, 160);
+            Array.Clear(state.SRAM, 0, 65279);
 
             InvokeOnClockCompleted();
         }
@@ -154,7 +158,7 @@ namespace ATmegaSim.CPU
                 return;
             }
 
-            ExecInstruction((ushort)((flashMemory[state.PC + 1] << 8) | flashMemory[state.PC])); // little-endian byte order
+            ExecInstruction(GetOpcodeAt(state.PC)); // little-endian byte order
             state.PC += 2;
 
             InvokeOnClockCompleted();
@@ -163,6 +167,11 @@ namespace ATmegaSim.CPU
             {
                 _shouldReset = true;
             }
+        }
+
+        public ushort GetOpcodeAt(ushort pntr)
+        {
+            return (ushort)((flashMemory[pntr + 1] << 8) | flashMemory[pntr]);
         }
 
         public event EventHandler<EventArgs> OnClockCompleted;
@@ -177,6 +186,8 @@ namespace ATmegaSim.CPU
     {
         public byte[] R { get; set; } = new byte[32];
         public byte[] IORegs { get; set; } = new byte[64];
+        public byte[] ExtIORegs { get; set; } = new byte[160];
+        public byte[] SRAM { get; set; } = new byte[65279];
         public ushort PC { get; set; }
         public uint CYCLES { get; set; }
 

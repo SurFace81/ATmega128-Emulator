@@ -54,6 +54,12 @@ namespace ATmegaSim.CPU
                 In(opcode);
                 return 1;
             }
+            if (((opcode & 0xFE00) >> 9) == 0b1001001)
+            {
+                cpuState.PC += 2; // Команда занимает 2 слова, учитываем одно из них
+                Sts(opcode, cpu.GetOpcodeAt(cpuState.PC));
+                return 2;
+            }
 
             return 1;
         }
@@ -149,6 +155,29 @@ namespace ATmegaSim.CPU
             int d = (opcode >> 4) & 0x1F;
 
             cpuState.R[d] = cpu.ReadIO((byte)A);
+        }
+
+        public void Sts(ushort opcode1, ushort opcode2)
+        {
+            int r = (opcode1 & 0x1F0) >> 4;
+            ushort k = opcode2;
+
+            if (k < 0x20)   // R0 - R31
+            {
+                cpuState.R[k] = cpuState.R[r];
+            }
+            else if (k < 0x60) // IO Regs
+            {
+                cpuState.IORegs[k - 0x20] = cpuState.R[r];
+            }
+            else if (k < 0x100) // Ext IO Regs
+            {
+                cpuState.ExtIORegs[k - 0x60] = cpuState.R[r];
+            }
+            else // SRAM
+            {
+                cpuState.SRAM[k - 0x100] = cpuState.R[r];
+            }
         }
     }
 }

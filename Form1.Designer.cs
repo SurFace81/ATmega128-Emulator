@@ -253,6 +253,7 @@
             this.delayTextBox.Size = new System.Drawing.Size(100, 31);
             this.delayTextBox.Text = "1000";
             this.delayTextBox.TextBoxTextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.delayTextBox.TextChanged += new System.EventHandler(this.delayTextBox_TextChanged);
             // 
             // Form1
             // 
