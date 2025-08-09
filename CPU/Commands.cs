@@ -54,6 +54,16 @@ namespace ATmegaSim.CPU
                 In(opcode);
                 return 1;
             }
+            if (((opcode & 0xFC00) >> 10) == 0b001011)
+            {
+                Mov(opcode);
+                return 1;
+            }
+            if (((opcode & 0xFF00) >> 8) == 0b00000001)
+            {
+                Movw(opcode);
+                return 1;
+            }
             if (((opcode & 0xFE00) >> 9) == 0b1001001)
             {
                 cpuState.PC += 2; // Команда занимает 2 слова, учитываем одно из них
@@ -70,7 +80,7 @@ namespace ATmegaSim.CPU
             return 1;
         }
 
-        public void Add(ushort opcode)
+        private void Add(ushort opcode)
         {
             int d = (opcode >> 4) & 0x1F;
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
@@ -83,10 +93,10 @@ namespace ATmegaSim.CPU
             // Flags
             bool Rd3 = ((Rd & (1 << 3)) != 0);
             bool Rr3 = ((Rr & (1 << 3)) != 0);
-            bool R3  = ((R  & (1 << 3)) != 0);
+            bool R3 = ((R & (1 << 3)) != 0);
             bool Rd7 = ((Rd & (1 << 7)) != 0);
             bool Rr7 = ((Rr & (1 << 7)) != 0);
-            bool R7  = ((R  & (1 << 7)) != 0);
+            bool R7 = ((R & (1 << 7)) != 0);
 
             cpuState.SREG.H = (Rd3 && Rr3) || (Rr3 && !R3) || (!R3 && Rd3);
             cpuState.SREG.V = (Rd7 && Rr7 && !R7) || (!Rd7 && !Rr7 && R7);
@@ -96,7 +106,7 @@ namespace ATmegaSim.CPU
             cpuState.SREG.C = (Rd7 && Rr7) || (Rr7 && !R7) || (!R7 && Rd7);
         }
 
-        public void Adc(ushort opcode)
+        private void Adc(ushort opcode)
         {
             int d = (opcode >> 4) & 0x1F;
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
@@ -122,7 +132,7 @@ namespace ATmegaSim.CPU
             cpuState.SREG.C = (Rd7 && Rr7) || (Rr7 && !R7) || (!R7 && Rd7);
         }
 
-        public void Ldi(ushort opcode)
+        private void Ldi(ushort opcode)
         {
             int d = 16 + ((opcode >> 4) & 0x0F);                  // 16 <= Rd <= 31
             int k = (opcode & 0x0F) | ((opcode >> 4) & 0xF0);
@@ -130,7 +140,7 @@ namespace ATmegaSim.CPU
             cpuState.R[d] = (byte)k;
         }
 
-        public void Mul(ushort opcode)
+        private void Mul(ushort opcode)
         {
             int d = (opcode >> 4) & 0x1F;
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
@@ -147,7 +157,7 @@ namespace ATmegaSim.CPU
             cpuState.SREG.Z = (R == 0);
         }
 
-        public void Out(ushort opcode)
+        private void Out(ushort opcode)
         {
             int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int r = (opcode >> 4) & 0x1F;
@@ -163,7 +173,24 @@ namespace ATmegaSim.CPU
             cpuState.R[d] = cpu.ReadIO((byte)A);
         }
 
-        public void Sts(ushort opcode1, ushort opcode2)
+        private void Mov(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+            int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
+
+            cpuState.R[d] = cpuState.R[r];
+        }
+
+        private void Movw(ushort opcode)
+        {
+            int d = ((opcode & 0xF0) >> 4) * 2;
+            int r = ((opcode & 0x0F)) * 2;
+
+            cpuState.R[d] = cpuState.R[r];
+            cpuState.R[d + 1] = cpuState.R[r + 1];
+        }
+
+        private void Sts(ushort opcode1, ushort opcode2)
         {
             int r = (opcode1 & 0x1F0) >> 4;
             ushort k = opcode2;
@@ -186,7 +213,7 @@ namespace ATmegaSim.CPU
             }
         }
 
-        public void Lds(ushort opcode1, ushort opcode2)
+        private void Lds(ushort opcode1, ushort opcode2)
         {
             int d = (opcode1 & 0x1F0) >> 4;
             ushort k = opcode2;
