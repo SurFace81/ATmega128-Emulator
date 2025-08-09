@@ -48,6 +48,50 @@ namespace ATmegaSim.CPU
             {
                 return Movw(opcode1);
             }
+            if ((opcode1 & 0xFE0F) == 0x900C)
+            {
+                return Ld1(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x900D)
+            {
+                return Ld2(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x900E)
+            {
+                return Ld3(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x8008)
+            {
+                return Ld4(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9009)
+            {
+                return Ld5(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x900A)
+            {
+                return Ld6(opcode1);
+            }
+            if ((opcode1 & 0xD208) == 0x8008)
+            {
+                return Ld7(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x8000)
+            {
+                return Ld8(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9001)
+            {
+                return Ld9(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9002)
+            {
+                return Ld10(opcode1);
+            }
+            if ((opcode1 & 0xD208) == 0x8000 && (((opcode1 & 0x000F) != 0x0000) || ((opcode1 & 0xF000) != 1000)))
+            {
+                return Ld11(opcode1);
+            }
             if (((opcode1 & 0xFE00) >> 9) == 0b1001001)
             {
                 return Sts(opcode1, opcode2);
@@ -70,7 +114,7 @@ namespace ATmegaSim.CPU
             int d = (opcode >> 4) & 0x1F;
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
 
-            return $"ADD R{d}, R{r}";
+            return $"ADD    R{d}, R{r}";
         }
 
         private string Adc(ushort opcode)
@@ -78,7 +122,7 @@ namespace ATmegaSim.CPU
             int d = (opcode >> 4) & 0x1F;
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
 
-            return $"ADC R{d}, R{r}";
+            return $"ADC    R{d}, R{r}";
         }
 
         private string Ldi(ushort opcode)
@@ -86,7 +130,7 @@ namespace ATmegaSim.CPU
             int d = 16 + ((opcode >> 4) & 0x0F);
             int k = (opcode & 0x0F) | ((opcode >> 4) & 0xF0);
 
-            return $"LDI R{d}, 0x{k:X2}";
+            return $"LDI    R{d}, 0x{k:X2}";
         }
 
         private string Mul(ushort opcode)
@@ -94,7 +138,7 @@ namespace ATmegaSim.CPU
             int d = (opcode >> 4) & 0x1F;
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
 
-            return $"MUL R{d}, R{r}";
+            return $"MUL    R{d}, R{r}";
         }
 
         private string Out(ushort opcode)
@@ -102,7 +146,7 @@ namespace ATmegaSim.CPU
             int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int r = (opcode >> 4) & 0x1F;
 
-            return $"OUT 0x{A:X2}, R{r}";
+            return $"OUT    0x{A:X2}, R{r}";
         }
 
         private string In(ushort opcode)
@@ -110,7 +154,7 @@ namespace ATmegaSim.CPU
             int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int d = (opcode >> 4) & 0x1F;
 
-            return $"IN R{d}, 0x{A:X2}";
+            return $"IN     R{d}, 0x{A:X2}";
         }
 
         private string Mov(ushort opcode)
@@ -118,7 +162,7 @@ namespace ATmegaSim.CPU
             int d = (opcode & 0x1F0) >> 4;
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
 
-            return $"MOV R{d}, R{r}";
+            return $"MOV    R{d}, R{r}";
         }
 
         private string Movw(ushort opcode)
@@ -126,19 +170,98 @@ namespace ATmegaSim.CPU
             int d = ((opcode & 0xF0) >> 4) * 2;
             int r = ((opcode & 0x0F)) * 2;
 
-            return $"MOVW R{d}, R{r}";
+            return $"MOVW   R{d}, R{r}";
+        }
+
+        private string Ld1(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LD     R{d}, X";
+        }
+
+        private string Ld2(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LD     R{d}, X+";
+        }
+
+        private string Ld3(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LD     R{d}, -X";
+        }
+
+        private string Ld4(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LD     R{d}, Y";
+        }
+
+        private string Ld5(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LD     R{d}, Y+";
+        }
+
+        private string Ld6(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LD     R{d}, -Y";
+        }
+
+        private string Ld7(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+            int q = (opcode & 0x07) | ((opcode & 0xC00) >> 7) | ((opcode & 0x2000) >> 8);
+
+            return $"LDD    R{d}, Y+{q}";
+        }
+
+        private string Ld8(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LD     R{d}, Z";
+        }
+
+        private string Ld9(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LD     R{d}, Z+";
+        }
+
+        private string Ld10(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LD     R{d}, -Z";
+        }
+
+        private string Ld11(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+            int q = (opcode & 0x07) | ((opcode & 0xC00) >> 7) | ((opcode & 0x2000) >> 8);
+
+            return $"LDD    R{d}, Z+{q}";
         }
 
         private string Sts(ushort opcode1, ushort opcode2)
         {
             int r = (opcode1 & 0x1F0) >> 4;
-            return $"STS 0x{opcode2:X4}, R{r}";
+            return $"STS    0x{opcode2:X4}, R{r}";
         }
 
         private string Lds(ushort opcode1, ushort opcode2)
         {
             int d = (opcode1 & 0x1F0) >> 4;
-            return $"STS R{d}, 0x{opcode2:X4}";
+            return $"STS    R{d}, 0x{opcode2:X4}";
         }
     }
 }

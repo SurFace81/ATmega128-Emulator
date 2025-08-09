@@ -104,6 +104,8 @@ namespace ATmegaSim
                     memView.DisplayFirm(HexParser.FirmFile);
                 foreach (var disView in disViews)
                     disView.DisplayDisasm(HexParser.FirmFile);
+                foreach (var regsView in regsViews)
+                    regsView.UpdateRegisters();
 
                 resetBtn.Enabled = true;
                 stepBtn.Enabled = true;

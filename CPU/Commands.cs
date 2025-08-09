@@ -64,6 +64,61 @@ namespace ATmegaSim.CPU
                 Movw(opcode);
                 return 1;
             }
+            if ((opcode & 0xFE0F) == 0x900C)
+            {
+                Ld1(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x900D)
+            {
+                Ld2(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x900E)
+            {
+                Ld3(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x8008)
+            {
+                Ld4(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x9009)
+            {
+                Ld5(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x900A)
+            {
+                Ld6(opcode);
+                return 2;
+            }
+            if ((opcode & 0xD208) == 0x8008)
+            {
+                Ld7(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x8000)
+            {
+                Ld8(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x9001)
+            {
+                Ld9(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x9002)
+            {
+                Ld10(opcode);
+                return 2;
+            }
+            if ((opcode & 0xD208) == 0x8000 && (((opcode & 0x000F) != 0x0000) || ((opcode & 0xF000) != 1000)))
+            {
+                Ld11(opcode);
+                return 2;
+            }
             if (((opcode & 0xFE00) >> 9) == 0b1001001)
             {
                 cpuState.PC += 2; // Команда занимает 2 слова, учитываем одно из них
@@ -190,27 +245,91 @@ namespace ATmegaSim.CPU
             cpuState.R[d + 1] = cpuState.R[r + 1];
         }
 
+        private void Ld1(ushort opcode) // LD Rd, X
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpu.GetDataMem(cpuState.X);
+        }
+
+        private void Ld2(ushort opcode) // LD Rd, X+
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpu.GetDataMem(cpuState.X++);
+        }
+
+        private void Ld3(ushort opcode) // LD Rd, -X
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpu.GetDataMem(--cpuState.X);
+        }
+
+        private void Ld4(ushort opcode) // LD Rd, Y
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpu.GetDataMem(cpuState.Y);
+        }
+
+        private void Ld5(ushort opcode) // LD Rd, Y+
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpu.GetDataMem(cpuState.Y++);
+        }
+
+        private void Ld6(ushort opcode) // LD Rd, -Y
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpu.GetDataMem(--cpuState.Y);
+        }
+
+        private void Ld7(ushort opcode) // LD Rd, Y+q
+        {
+            int d = (opcode & 0x1F0) >> 4;
+            int q = (opcode & 0x07) | ((opcode & 0xC00) >> 7) | ((opcode & 0x2000) >> 8);
+
+            cpuState.R[d] = cpu.GetDataMem((ushort)(cpuState.Y + q));
+        }
+
+        private void Ld8(ushort opcode) // LD Rd, Z
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpu.GetDataMem(cpuState.Z);
+        }
+
+        private void Ld9(ushort opcode) // LD Rd, Z+
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpu.GetDataMem(cpuState.Z++);
+        }
+
+        private void Ld10(ushort opcode) // LD Rd, -Z
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpu.GetDataMem(--cpuState.Z);
+        }
+
+        private void Ld11(ushort opcode) // LD Rd, Z+q
+        {
+            int d = (opcode & 0x1F0) >> 4;
+            int q = (opcode & 0x07) | ((opcode & 0xC00) >> 7) | ((opcode & 0x2000) >> 8);
+
+            cpuState.R[d] = cpu.GetDataMem((ushort)(cpuState.Z + q));
+        }
+
         private void Sts(ushort opcode1, ushort opcode2)
         {
             int r = (opcode1 & 0x1F0) >> 4;
             ushort k = opcode2;
 
-            if (k < 0x20)   // R0 - R31
-            {
-                cpuState.R[k] = cpuState.R[r];
-            }
-            else if (k < 0x60) // IO Regs
-            {
-                cpuState.IORegs[k - 0x20] = cpuState.R[r];
-            }
-            else if (k < 0x100) // Ext IO Regs
-            {
-                cpuState.ExtIORegs[k - 0x60] = cpuState.R[r];
-            }
-            else // SRAM
-            {
-                cpuState.SRAM[k - 0x100] = cpuState.R[r];
-            }
+            cpu.SetDataMem(k, cpuState.R[r]);
         }
 
         private void Lds(ushort opcode1, ushort opcode2)
@@ -218,22 +337,7 @@ namespace ATmegaSim.CPU
             int d = (opcode1 & 0x1F0) >> 4;
             ushort k = opcode2;
 
-            if (k < 0x20)   // R0 - R31
-            {
-                cpuState.R[d] = cpuState.R[k];
-            }
-            else if (k < 0x60) // IO Regs
-            {
-                cpuState.R[d] = cpuState.IORegs[k - 0x20];
-            }
-            else if (k < 0x100) // Ext IO Regs
-            {
-                cpuState.R[d] = cpuState.ExtIORegs[k - 0x60];
-            }
-            else // SRAM
-            {
-                cpuState.R[d] = cpuState.SRAM[k - 0x100];
-            }
+            cpuState.R[d] = cpu.GetDataMem(k);
         }
     }
 }

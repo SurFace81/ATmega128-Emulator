@@ -3,11 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Windows.Forms.AxHost;
 
 namespace ATmegaSim.CPU
 {
@@ -73,12 +73,6 @@ namespace ATmegaSim.CPU
             InvokeOnClockCompleted();
         }
 
-        int cyclesToWait = 0;
-        private void ExecInstruction(ushort opcode)
-        {
-            cyclesToWait = commands.ExecInsruction(opcode);
-        }
-
         private void InitializeIOHandlers()
         {
             // PORTA (0x1B - PORT, 0x1A - DDR, 0x19 - PIN)
@@ -139,7 +133,48 @@ namespace ATmegaSim.CPU
             return state.IORegs[address];
         }
 
+        public byte GetDataMem(ushort addr)
+        {
+            if (addr < 0x20)   // R0 - R31
+            {
+                return state.R[addr];
+            }
+            else if (addr < 0x60) // IO Regs
+            {
+                return state.IORegs[addr - 0x20];
+            }
+            else if (addr < 0x100) // Ext IO Regs
+            {
+                return state.ExtIORegs[addr - 0x60];
+            }
+            else // SRAM
+            {
+                return state.SRAM[addr - 0x100];
+            }
+        }
+
+        public void SetDataMem(ushort addr, byte value)
+        {
+            if (addr < 0x20)   // R0 - R31
+            {
+                state.R[addr] = value;
+            }
+            else if (addr < 0x60) // IO Regs
+            {
+                state.IORegs[addr - 0x20] = value;
+            }
+            else if (addr < 0x100) // Ext IO Regs
+            {
+                state.ExtIORegs[addr - 0x60] = value;
+            }
+            else // SRAM
+            {
+                state.SRAM[addr - 0x100] = value;
+            }
+        }
+
         private bool _shouldReset = false;
+        int cyclesToWait = 0;
         public void OnClock()
         {
             state.CYCLES += 1;
@@ -158,7 +193,7 @@ namespace ATmegaSim.CPU
                 return;
             }
 
-            ExecInstruction(GetOpcodeAt(state.PC)); // little-endian byte order
+            cyclesToWait = commands.ExecInsruction(GetOpcodeAt(state.PC));
             state.PC += 2;
 
             InvokeOnClockCompleted();
@@ -171,7 +206,7 @@ namespace ATmegaSim.CPU
 
         public ushort GetOpcodeAt(ushort pntr)
         {
-            return (ushort)((flashMemory[pntr + 1] << 8) | flashMemory[pntr]);
+            return (ushort)((flashMemory[pntr + 1] << 8) | flashMemory[pntr]); // little-endian byte order
         }
 
         public event EventHandler<EventArgs> OnClockCompleted;
