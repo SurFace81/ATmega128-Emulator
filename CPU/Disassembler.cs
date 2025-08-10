@@ -20,35 +20,35 @@ namespace ATmegaSim.CPU
             {
                 return Break(opcode1);
             }
-            if (((opcode1 & 0xFC00) >> 10) == 0b0011)
+            if ((opcode1 & 0xFC00) == 0x0C00)
             {
                 return Add(opcode1);
             }
-            if (((opcode1 & 0xFC00) >> 10) == 0b0111)
+            if ((opcode1 & 0xFC00) == 0x1C00)
             {
                 return Adc(opcode1);
             }
-            if (((opcode1 & 0xF000) >> 12) == 0b1110)
+            if ((opcode1 & 0xF000) == 0xE000)
             {
                 return Ldi(opcode1);
             }
-            if (((opcode1 & 0xFC00) >> 10) == 0b100111)
+            if ((opcode1 & 0xFC00) == 0x9C00)
             {
                 return Mul(opcode1);
             }
-            if (((opcode1 & 0xF800) >> 11) == 0b10111)
+            if ((opcode1 & 0xF800) == 0xB800)
             {
                 return Out(opcode1);
             }
-            if (((opcode1 & 0xF800) >> 11) == 0b10110)
+            if ((opcode1 & 0xF800) == 0xB000)
             {
                 return In(opcode1);
             }
-            if (((opcode1 & 0xFC00) >> 10) == 0b001011)
+            if ((opcode1 & 0xFC00) == 0x2C00)
             {
                 return Mov(opcode1);
             }
-            if (((opcode1 & 0xFF00) >> 8) == 0b00000001)
+            if ((opcode1 & 0xFF00) == 0x100)
             {
                 return Movw(opcode1);
             }
@@ -96,7 +96,7 @@ namespace ATmegaSim.CPU
             {
                 return Ld11(opcode1);
             }
-            if (((opcode1 & 0xFE00) >> 9) == 0b1001000)
+            if ((opcode1 & 0xFE0F) == 0x9000)
             {
                 return Lds(opcode1, opcode2);
             }
@@ -147,6 +147,30 @@ namespace ATmegaSim.CPU
             if ((opcode1 & 0xFE0F) == 0x9200)
             {
                 return Sts(opcode1, opcode2);
+            }
+            if (opcode1 == 0x95C8)
+            {
+                return Lpm(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9004)
+            {
+                return Lpm1(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9005)
+            {
+                return Lpm2(opcode1);
+            }
+            if (opcode1 == 0x95D8)
+            {
+                return Elpm(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9006)
+            {
+                return Elpm1(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9007)
+            {
+                return Elpm2(opcode1);
             }
 
             return "???";
@@ -199,6 +223,10 @@ namespace ATmegaSim.CPU
             int A = (opcode & 0x0F) | ((opcode >> 5) & 0x30);
             int r = (opcode >> 4) & 0x1F;
 
+            if (A == 0x3B)
+            {
+                return $"OUT    RAMPZ, R{r}";
+            }
             return $"OUT    0x{A:X2}, R{r}";
         }
 
@@ -395,6 +423,44 @@ namespace ATmegaSim.CPU
         {
             int r = (opcode1 & 0x1F0) >> 4;
             return $"STS    0x{opcode2:X4}, R{r}";
+        }
+
+        private string Lpm(ushort opcode)
+        {
+            return $"LPM";
+        }
+
+        private string Lpm1(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LPM    R{d}, Z";
+        }
+
+        private string Lpm2(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"LPM    R{d}, Z+";
+        }
+
+        private string Elpm(ushort opcode)
+        {
+            return $"ELPM";
+        }
+
+        private string Elpm1(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"ELPM   R{d}, Z";
+        }
+
+        private string Elpm2(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"ELPM   R{d}, Z+";
         }
     }
 }

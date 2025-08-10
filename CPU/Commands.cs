@@ -24,42 +24,42 @@ namespace ATmegaSim.CPU
                 //Nop(); //Break();
                 return 1;
             }
-            if (((opcode & 0xFC00) >> 10) == 0b0011)
+            if ((opcode & 0xFC00) == 0x0C00)
             {
                 Add(opcode);
                 return 1;
             }
-            if (((opcode & 0xFC00) >> 10) == 0b0111)
+            if ((opcode & 0xFC00) == 0x1C00)
             {
                 Adc(opcode);
                 return 1;
             }
-            if (((opcode & 0xF000) >> 12) == 0b1110)
+            if ((opcode & 0xF000) == 0xE000)
             {
                 Ldi(opcode);
                 return 1;
             }
-            if (((opcode & 0xFC00) >> 10) == 0b100111)
+            if ((opcode & 0xFC00) == 0x9C00)
             {
                 Mul(opcode);
                 return 2;
             }
-            if (((opcode & 0xF800) >> 11) == 0b10111)
+            if ((opcode & 0xF800) == 0xB800)
             {
                 Out(opcode);
                 return 1;
             }
-            if (((opcode & 0xF800) >> 11) == 0b10110)
+            if ((opcode & 0xF800) == 0xB000)
             {
                 In(opcode);
                 return 1;
             }
-            if (((opcode & 0xFC00) >> 10) == 0b001011)
+            if ((opcode & 0xFC00) == 0x2C00)
             {
                 Mov(opcode);
                 return 1;
             }
-            if (((opcode & 0xFF00) >> 8) == 0b00000001)
+            if ((opcode & 0xFF00) == 0x100)
             {
                 Movw(opcode);
                 return 1;
@@ -119,7 +119,7 @@ namespace ATmegaSim.CPU
                 Ld11(opcode);
                 return 2;
             }
-            if (((opcode & 0xFE00) >> 9) == 0b1001000)
+            if ((opcode & 0xFE0F) == 0x9000)
             {
                 cpuState.PC += 2;
                 Lds(opcode, cpu.GetOpcodeAt(cpuState.PC));
@@ -185,6 +185,36 @@ namespace ATmegaSim.CPU
                 cpuState.PC += 2; // Команда занимает 2 слова, учитываем одно из них
                 Sts(opcode, cpu.GetOpcodeAt(cpuState.PC));
                 return 2;
+            }
+            if (opcode == 0x95C8)
+            {
+                Lpm(opcode);
+                return 3;
+            }
+            if ((opcode & 0xFE0F) == 0x9004)
+            {
+                Lpm1(opcode);
+                return 3;
+            }
+            if ((opcode & 0xFE0F) == 0x9005)
+            {
+                Lpm2(opcode);
+                return 3;
+            }
+            if (opcode == 0x95D8)
+            {
+                Elpm(opcode);
+                return 3;
+            }
+            if ((opcode & 0xFE0F) == 0x9006)
+            {
+                Elpm1(opcode);
+                return 3;
+            }
+            if ((opcode & 0xFE0F) == 0x9007)
+            {
+                Elpm2(opcode);
+                return 3;
             }
 
             return 1;
@@ -472,6 +502,45 @@ namespace ATmegaSim.CPU
             ushort k = opcode2;
 
             cpu.SetDataMem(k, cpuState.R[r]);
+        }
+
+        private void Lpm(ushort opcode)
+        {
+            cpuState.R[0] = cpuState.FLASH[cpuState.Z];
+        }
+
+        private void Lpm1(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpuState.FLASH[cpuState.Z];
+        }
+
+        private void Lpm2(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpuState.FLASH[cpuState.Z++];
+        }
+
+        private void Elpm(ushort opcode)
+        {
+            cpuState.R[0] = cpuState.FLASH[Math.Min(cpuState.Z24, 0x1FFFF)];
+        }
+
+        private void Elpm1(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpuState.FLASH[Math.Min(cpuState.Z24, 0x1FFFF)];
+        }
+
+        private void Elpm2(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpuState.FLASH[Math.Min(cpuState.Z24++, 0x1FFFF)];
+            if (cpuState.Z24 > 0x1FFFF) cpuState.Z24 = 0;
         }
     }
 }

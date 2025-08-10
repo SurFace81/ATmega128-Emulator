@@ -16,7 +16,6 @@ namespace ATmegaSim.CPU
         public const int FLASH_SIZE = 0x20000;
         public const int DATA_SIZE = 0x10FF;
         public const int IO_SIZE = 0x40;
-        private byte[] flashMemory = new byte[FLASH_SIZE];
         private int firmSize;
 
         private readonly Dictionary<byte, Action<byte>> IOWriteHandlers = new Dictionary<byte, Action<byte>>();
@@ -49,7 +48,7 @@ namespace ATmegaSim.CPU
 
             byte[] temp = firmFile.ToArray();
             firmSize = temp.Length;
-            Array.Copy(temp, 0, flashMemory, 0, temp.Length);
+            Array.Copy(temp, 0, state.FLASH, 0, temp.Length);
 
             state.PC = 0;
             return true;
@@ -206,7 +205,7 @@ namespace ATmegaSim.CPU
 
         public ushort GetOpcodeAt(ushort pntr)
         {
-            return (ushort)((flashMemory[pntr + 1] << 8) | flashMemory[pntr]); // little-endian byte order
+            return (ushort)((state.FLASH[pntr + 1] << 8) | state.FLASH[pntr]); // little-endian byte order
         }
 
         public event EventHandler<EventArgs> OnClockCompleted;
@@ -219,6 +218,7 @@ namespace ATmegaSim.CPU
 
     public class CpuState
     {
+        public byte[] FLASH = Enumerable.Repeat((byte)0xFF, Cpu.FLASH_SIZE).ToArray();
         public byte[] R { get; set; } = new byte[32];
         public byte[] IORegs { get; set; } = new byte[64];
         public byte[] ExtIORegs { get; set; } = new byte[160];
@@ -249,6 +249,18 @@ namespace ATmegaSim.CPU
         {
             get => (ushort)((R[31] << 8) | R[30]);
             set { R[31] = (byte)(value >> 8); R[30] = (byte)(value & 0xFF); }
+        }
+
+        public byte RAMPZ
+        {
+            get => (byte)(IORegs[0x3B]);
+            set { IORegs[0x3B] = (byte)value; }
+        }
+
+        public uint Z24
+        {
+            get => (uint)(((uint)RAMPZ << 16) | Z);
+            set { RAMPZ = (byte)(value >> 16); Z = (ushort)(value & 0xFFFF); }
         }
 
         public IOPort PORTA { get; private set; } = new IOPort();

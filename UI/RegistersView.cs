@@ -57,8 +57,8 @@ namespace ATmegaSim.UI
                 {
                     rows.Add(new RegisterItem { Name = $"R{i}", Value = FormatToString(cpuState.R[i], 2) });
                 }
-                // RAMPZ
-                // Z24
+                rows.Add(new RegisterItem { Name = "RAMPZ", Value = FormatToString(cpuState.RAMPZ, 2) });
+                rows.Add(new RegisterItem { Name = "Z24", Value = FormatToString(cpuState.Z24, 6) });
 
                 if (scrollIndex != -1)
                 {
