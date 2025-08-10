@@ -172,6 +172,14 @@ namespace ATmegaSim.CPU
             {
                 return Elpm2(opcode1);
             }
+            if ((opcode1 & 0xFE0F) == 0x920F)
+            {
+                return Push(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x900F)
+            {
+                return Pop(opcode1);
+            }
 
             return "???";
         }
@@ -461,6 +469,20 @@ namespace ATmegaSim.CPU
             int d = (opcode & 0x1F0) >> 4;
 
             return $"ELPM   R{d}, Z+";
+        }
+
+        private string Push(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            return $"PUSH   R{r}";
+        }
+
+        private string Pop(ushort opcode)
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            return $"POP    R{d}";
         }
     }
 }

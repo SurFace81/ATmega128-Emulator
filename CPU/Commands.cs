@@ -216,6 +216,16 @@ namespace ATmegaSim.CPU
                 Elpm2(opcode);
                 return 3;
             }
+            if ((opcode & 0xFE0F) == 0x920F)
+            {
+                Push(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFE0F) == 0x900F)
+            {
+                Pop(opcode);
+                return 2;
+            }
 
             return 1;
         }
@@ -541,6 +551,22 @@ namespace ATmegaSim.CPU
 
             cpuState.R[d] = cpuState.FLASH[Math.Min(cpuState.Z24++, 0x1FFFF)];
             if (cpuState.Z24 > 0x1FFFF) cpuState.Z24 = 0;
+        }
+
+        private void Push(ushort opcode)
+        {
+            int r = (opcode & 0x1F0) >> 4;
+
+            cpuState.SP -= 1;
+            cpu.SetDataMem((ushort)(cpuState.SP - 1), cpuState.R[r]);
+        }
+
+        private void Pop(ushort opcode) 
+        {
+            int d = (opcode & 0x1F0) >> 4;
+
+            cpuState.R[d] = cpu.GetDataMem((ushort)(cpuState.SP - 1));
+            cpuState.SP += 1;
         }
     }
 }

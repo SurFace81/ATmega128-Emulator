@@ -8,13 +8,14 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Navigation;
 
 namespace ATmegaSim.CPU
 {
     public class Cpu : IClockSink
     {
         public const int FLASH_SIZE = 0x20000;
-        public const int DATA_SIZE = 0x10FF;
+        public const int DATA_SIZE = 0xFFFF;
         public const int IO_SIZE = 0x40;
         private int firmSize;
 
@@ -224,6 +225,7 @@ namespace ATmegaSim.CPU
         public byte[] ExtIORegs { get; set; } = new byte[160];
         public byte[] SRAM { get; set; } = new byte[65279];
         public ushort PC { get; set; }
+        public ushort SP { get; set; }
         public uint CYCLES { get; set; }
 
         public struct SREGStruct
@@ -232,7 +234,6 @@ namespace ATmegaSim.CPU
         }
         public SREGStruct SREG;
 
-        // Свойства для регистровых пар
         public ushort X
         {
             get => (ushort)((R[27] << 8) | R[26]);

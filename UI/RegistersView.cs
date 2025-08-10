@@ -50,7 +50,7 @@ namespace ATmegaSim.UI
                 rows.Add(new RegisterItem { Name = "Y", Value = FormatToString(cpuState.Y, 4) });
                 rows.Add(new RegisterItem { Name = "Z", Value = FormatToString(cpuState.Z, 4) });
                 rows.Add(new RegisterItem { Name = "SREG", Value = "0b" + Convert.ToString(GetSreg(), 2).PadLeft(8, '0') }); // Always in BIN format
-                // SP
+                rows.Add(new RegisterItem { Name = "SP", Value = FormatToString(cpuState.SP, 4) });
                 rows.Add(new RegisterItem { Name = "PC", Value = FormatToString(cpuState.PC, 4) });
                 rows.Add(new RegisterItem { Name = "CYCLES", Value = cpuState.CYCLES.ToString() });  // Always in DEC
                 for (int i = 0; i < cpuState.R.Length; i++)
