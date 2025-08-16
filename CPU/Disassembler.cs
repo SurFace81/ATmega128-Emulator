@@ -28,6 +28,30 @@ namespace ATmegaSim.CPU
             {
                 return Adc(opcode1);
             }
+            if ((opcode1 & 0xFF00) == 0x9600)
+            {
+                return Adiw(opcode1);
+            }
+            if ((opcode1 & 0xFC00) == 0x1800)
+            {
+                return Sub(opcode1);
+            }
+            if ((opcode1 & 0xF000) == 0x5000)
+            {
+                return Subi(opcode1);
+            }
+            if ((opcode1 & 0x0800) == 0x0800)
+            {
+                return Sbc(opcode1);
+            }
+            if ((opcode1 & 0xF000) == 0x4000)
+            {
+                return Sbci(opcode1);
+            }
+            if ((opcode1 & 0xFF00) == 0x9700)
+            {
+                return Sbiw(opcode1);
+            }
             if ((opcode1 & 0xF000) == 0xE000)
             {
                 return Ldi(opcode1);
@@ -208,6 +232,56 @@ namespace ATmegaSim.CPU
             int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
 
             return $"ADC    R{d}, R{r}";
+        }
+
+        private string Adiw(ushort opcode)
+        {
+            int[] temp = new int[] { 24, 26, 28, 30 };
+            int k = (opcode & 0x0F) | (opcode >> 2) & 0x30;
+            int d = temp[(opcode >> 4) & 0x03];
+
+            return $"ADIW   R{d}, {k}";
+        }
+
+        private string Sub(ushort opcode)
+        {
+            int r = (opcode & 0x0F) | (opcode >> 5) & 0x10;
+            int d = ((opcode >> 4) & 0x0F) | (opcode >> 4) & 0x10;
+
+            return $"SUB    R{d}, R{r}";
+        }
+
+        private string Subi(ushort opcode)
+        {
+            int d = ((opcode >> 4) & 0x0F) + 16;
+            int k = (opcode & 0x0F) | (opcode >> 4) & 0xF0;
+
+            return $"SUBI   R{d}, 0x{k:X2}";
+        }
+
+        private string Sbc(ushort opcode)
+        {
+            int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
+            int d = ((opcode >> 4) & 0x0F) | ((opcode >> 4) & 0x10);
+
+            return $"SBC    R{d}, R{r}";
+        }
+
+        private string Sbci(ushort opcode)
+        {
+            int d = ((opcode >> 4) & 0x0F) + 16;
+            int k = (opcode & 0x0F) | (opcode >> 4) & 0xF0;
+
+            return $"SBCI   R{d}, 0x{k:X2}";
+        }
+
+        private string Sbiw(ushort opcode)
+        {
+            int[] temp = new int[] { 24, 26, 28, 30 };
+            int d = temp[(opcode >> 4) & 0x03];
+            ushort k = (ushort)((opcode & 0x0F) | (opcode >> 2) & 0x30);
+
+            return $"SBIW   R{d}, 0x{k:X2}";
         }
 
         private string Ldi(ushort opcode)

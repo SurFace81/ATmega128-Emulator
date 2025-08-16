@@ -34,6 +34,36 @@ namespace ATmegaSim.CPU
                 Adc(opcode);
                 return 1;
             }
+            if ((opcode & 0xFF00) == 0x9600)
+            {
+                Adiw(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFC00) == 0x1800)
+            {
+                Sub(opcode);
+                return 1;
+            }
+            if ((opcode & 0xF000) == 0x5000)
+            {
+                Subi(opcode);
+                return 1;
+            }
+            if ((opcode & 0x0800) == 0x0800)
+            {
+                Sbc(opcode);
+                return 1;
+            }
+            if ((opcode & 0xF000) == 0x4000)
+            {
+                Sbci(opcode);
+                return 1;
+            }
+            if ((opcode & 0xFF00) == 0x9700)
+            {
+                Sbiw(opcode);
+                return 2;
+            }
             if ((opcode & 0xF000) == 0xE000)
             {
                 Ldi(opcode);
@@ -280,6 +310,150 @@ namespace ATmegaSim.CPU
             cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
             cpuState.SREG.Z = (R == 0);
             cpuState.SREG.C = (Rd7 && Rr7) || (Rr7 && !R7) || (!R7 && Rd7);
+        }
+
+        private void Adiw(ushort opcode)
+        {
+            int[] temp = new int[] { 24, 26, 28, 30 };
+            ushort k = (ushort)((opcode & 0x0F) | (opcode >> 2) & 0x30);
+            int d = temp[(opcode >> 4) & 0x03];
+
+            ushort word = (ushort)((cpuState.R[d + 1] << 8) | cpuState.R[d]);
+            word += k;
+
+            cpuState.R[d + 1] = (byte)(word >> 8);
+            cpuState.R[d] = (byte)(word & 0xFF);
+
+            // Flags
+            bool Rdh7 = (cpuState.R[d + 1] & (1 << 7)) != 0;
+            bool R15 = (word & (1 << 15)) != 0;
+
+            cpuState.SREG.Z = (word == 0);
+            cpuState.SREG.N = R15;
+            cpuState.SREG.V = Rdh7 && !R15;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.C = !R15 && Rdh7;
+        }
+
+        private void Sub(ushort opcode)
+        {
+            int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
+            int d = ((opcode >> 4) & 0x0F) | ((opcode >> 4) & 0x10);
+
+            var Rd = cpuState.R[d];
+            var Rr = cpuState.R[r];
+            cpuState.R[d] -= cpuState.R[r];
+
+            // Flags
+            bool Rd3 = (Rd & (1 << 3)) != 0;
+            bool Rr3 = (Rr & (1 << 3)) != 0;
+            bool R3 = (cpuState.R[d] & (1 << 3)) != 0;
+            bool Rd7 = (Rd & (1 << 7)) != 0;
+            bool Rr7 = (Rr & (1 << 7)) != 0;
+            bool R7 = (cpuState.R[d] & (1 << 7)) != 0;
+
+            cpuState.SREG.H = (!Rd3 && Rr3) || (Rr3 && R3) || (R3 && !Rd3);
+            cpuState.SREG.V = (Rd7 && !Rr7 && !R7) || (!Rd7 && Rr7 && R7);
+            cpuState.SREG.N = R7;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0);
+            cpuState.SREG.C = (!Rd7 && Rr7) || (Rr7 && R7) || (R7 && !Rd7);
+        }
+
+        private void Subi(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F + 16;
+            byte k = (byte)((opcode & 0x0F) | (opcode >> 4) & 0xF0);
+
+            int Rd = cpuState.R[d];
+            cpuState.R[d] -= k;
+
+            // Flags
+            bool Rd3 = (Rd & (1 << 3)) != 0;
+            bool K3 = (k & (1 << 3)) != 0;
+            bool R3 = (cpuState.R[d] & (1 << 3)) != 0;
+            bool Rd7 = (Rd & (1 << 7)) != 0;
+            bool K7 = (k & (1 << 7)) != 0;
+            bool R7 = (cpuState.R[d] & (1 << 7)) != 0;
+
+            cpuState.SREG.H = (!Rd3 && K3) || (K3 && R3) || (R3 && !Rd3);
+            cpuState.SREG.V = (Rd7 && !K7 && !R7) || (!Rd7 && K7 && R7);
+            cpuState.SREG.N = R7;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0);
+            cpuState.SREG.C = (!Rd7 && K7) || (K7 && R7) || (R7 && !Rd7);
+        }
+
+        private void Sbc(ushort opcode)
+        {
+            int r = (opcode & 0x0F) | ((opcode >> 5) & 0x10);
+            int d = ((opcode >> 4) & 0x0F) | ((opcode >> 4) & 0x10);
+
+            int Rd = cpuState.R[d];
+            int Rr = cpuState.R[r];
+            cpuState.R[d] = (byte)(Rd - Rr - Convert.ToInt32(cpuState.SREG.C));
+
+            // Flags
+            bool Rd3 = (Rd & (1 << 3)) != 0;
+            bool Rr3 = (Rr & (1 << 3)) != 0;
+            bool R3 = (cpuState.R[d] & (1 << 3)) != 0;
+            bool Rd7 = (Rd & (1 << 7)) != 0;
+            bool Rr7 = (Rr & (1 << 7)) != 0;
+            bool R7 = (cpuState.R[d] & (1 << 7)) != 0;
+
+            cpuState.SREG.H = (!Rd3 && Rr3) || (Rr3 && R3) || (R3 && !Rd3);
+            cpuState.SREG.V = (Rd7 && !Rr7 && !R7) || (!Rd7 && Rr7 && R7);
+            cpuState.SREG.N = R7;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0) && cpuState.SREG.Z;
+            cpuState.SREG.C = (!Rd7 && Rr7) || (Rr7 && R7) || (R7 && !Rd7);
+        }
+
+        private void Sbci(ushort opcode)
+        {
+            int d = ((opcode >> 4) & 0x0F) + 16;
+            int k = (opcode & 0x0F) | (opcode >> 4) & 0xF0;
+
+            int Rd = cpuState.R[d];
+            cpuState.R[d] = (byte)(cpuState.R[d] - k - Convert.ToByte(cpuState.SREG.C));
+
+            // Flags
+            bool Rd3 = (Rd & (1 << 3)) != 0;
+            bool K3 = (k & (1 << 3)) != 0;
+            bool R3 = (cpuState.R[d] & (1 << 3)) != 0;
+            bool Rd7 = (Rd & (1 << 7)) != 0;
+            bool K7 = (k & (1 << 7)) != 0;
+            bool R7 = (cpuState.R[d] & (1 << 7)) != 0;
+
+            cpuState.SREG.H = (!Rd3 && K3) || (K3 && R3) || (R3 && !Rd3);
+            cpuState.SREG.V = (Rd7 && !K7 && !R7) || (!Rd7 && K7 && R7);
+            cpuState.SREG.N = R7;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0) && cpuState.SREG.Z;
+            cpuState.SREG.C = (!Rd7 && K7) || (K7 && R7) || (R7 && !Rd7);
+        }
+
+        private void Sbiw(ushort opcode)
+        {
+            int[] temp = new int[] { 24, 26, 28, 30 };
+            int d = temp[(opcode >> 4) & 0x03];
+            ushort k = (ushort)((opcode & 0x0F) | (opcode >> 2) & 0x30);
+
+            ushort word = (ushort)(cpuState.R[d + 1] << 8 | cpuState.R[d]);
+            word -= k;
+
+            cpuState.R[d + 1] = (byte)(word >> 8);
+            cpuState.R[d] = (byte)(word & 0xFF);
+
+            // Flags
+            bool Rdh7 = ((word >> 8) & (1 << 7)) != 0;
+            bool R15 = (word & (1 << 15)) != 0;
+
+            cpuState.SREG.Z = (word == 0);
+            cpuState.SREG.N = R15;
+            cpuState.SREG.V = R15 && !Rdh7;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.C = (!R15) && Rdh7;
         }
 
         private void Ldi(ushort opcode)
@@ -561,7 +735,7 @@ namespace ATmegaSim.CPU
             cpu.SetDataMem((ushort)(cpuState.SP - 1), cpuState.R[r]);
         }
 
-        private void Pop(ushort opcode) 
+        private void Pop(ushort opcode)
         {
             int d = (opcode & 0x1F0) >> 4;
 
