@@ -40,10 +40,6 @@ namespace ATmegaSim.CPU
             {
                 return Subi(opcode1);
             }
-            if ((opcode1 & 0x0800) == 0x0800)
-            {
-                return Sbc(opcode1);
-            }
             if ((opcode1 & 0xF000) == 0x4000)
             {
                 return Sbci(opcode1);
@@ -52,9 +48,21 @@ namespace ATmegaSim.CPU
             {
                 return Sbiw(opcode1);
             }
+            if ((opcode1 & 0xFC00) == 0x2000)
+            {
+                return And(opcode1);
+            }
+            if ((opcode1 & 0xF000) == 0x7000)
+            {
+                return Andi(opcode1);
+            }
             if ((opcode1 & 0xF000) == 0xE000)
             {
                 return Ldi(opcode1);
+            }
+            if ((opcode1 & 0x800) == 0x800)
+            {
+                return Sbc(opcode1);
             }
             if ((opcode1 & 0xFC00) == 0x9C00)
             {
@@ -282,6 +290,22 @@ namespace ATmegaSim.CPU
             ushort k = (ushort)((opcode & 0x0F) | (opcode >> 2) & 0x30);
 
             return $"SBIW   R{d}, 0x{k:X2}";
+        }
+
+        private string And(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+            int r = (opcode & 0x0F) | (opcode >> 5) & 0x10;
+
+            return $"AND    R{d}, R{r}";
+        }
+
+        private string Andi(ushort opcode)
+        {
+            int k = (opcode & 0x0F) | (opcode >> 4) & 0xF0;
+            int d = ((opcode >> 4) & 0x0F) + 16;
+
+            return $"ANDI   R{d}, 0x{k:X2}";
         }
 
         private string Ldi(ushort opcode)

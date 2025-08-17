@@ -49,11 +49,6 @@ namespace ATmegaSim.CPU
                 Subi(opcode);
                 return 1;
             }
-            if ((opcode & 0x0800) == 0x0800)
-            {
-                Sbc(opcode);
-                return 1;
-            }
             if ((opcode & 0xF000) == 0x4000)
             {
                 Sbci(opcode);
@@ -64,9 +59,24 @@ namespace ATmegaSim.CPU
                 Sbiw(opcode);
                 return 2;
             }
+            if ((opcode & 0xFC00) == 0x2000)
+            {
+                And(opcode);
+                return 1;
+            }
+            if ((opcode & 0xF000) == 0x7000)
+            {
+                Andi(opcode);
+                return 1;
+            }
             if ((opcode & 0xF000) == 0xE000)
             {
                 Ldi(opcode);
+                return 1;
+            }
+            if ((opcode & 0x0800) == 0x0800)
+            {
+                Sbc(opcode);
                 return 1;
             }
             if ((opcode & 0xFC00) == 0x9C00)
@@ -454,6 +464,34 @@ namespace ATmegaSim.CPU
             cpuState.SREG.V = R15 && !Rdh7;
             cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
             cpuState.SREG.C = (!R15) && Rdh7;
+        }
+
+        private void And(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+            int r = (opcode & 0x0F) | (opcode >> 5) & 0x10;
+
+            cpuState.R[d] &= cpuState.R[r];
+
+            // Flags
+            cpuState.SREG.V = false;
+            cpuState.SREG.N = (cpuState.R[d] & (1 << 7)) != 0;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0);
+        }
+
+        private void Andi(ushort opcode)
+        {
+            int k = (opcode & 0x0F) | (opcode >> 4) & 0xF0;
+            int d = ((opcode >> 4) & 0x0F) + 16;
+
+            cpuState.R[d] = (byte)(cpuState.R[d] & k);
+
+            // Flags
+            cpuState.SREG.V = false;
+            cpuState.SREG.N = (cpuState.R[d] & (1 << 7)) != 0;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0);
         }
 
         private void Ldi(ushort opcode)
