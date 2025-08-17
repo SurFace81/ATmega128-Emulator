@@ -69,6 +69,21 @@ namespace ATmegaSim.CPU
                 Andi(opcode);
                 return 1;
             }
+            if ((opcode & 0xFC00) == 0x2800)
+            {
+                Or(opcode);
+                return 1;
+            }
+            if ((opcode & 0xF000) == 0x6000)
+            {
+                Ori(opcode);
+                return 1;
+            }
+            if ((opcode & 0xFC00) == 0x2400)
+            {
+                Eor(opcode);
+                return 1;
+            }
             if ((opcode & 0xF000) == 0xE000)
             {
                 Ldi(opcode);
@@ -486,6 +501,48 @@ namespace ATmegaSim.CPU
             int d = ((opcode >> 4) & 0x0F) + 16;
 
             cpuState.R[d] = (byte)(cpuState.R[d] & k);
+
+            // Flags
+            cpuState.SREG.V = false;
+            cpuState.SREG.N = (cpuState.R[d] & (1 << 7)) != 0;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0);
+        }
+
+        private void Or(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+            int r = (opcode & 0x0F) | (opcode >> 5) & 0x10;
+
+            cpuState.R[d] |= cpuState.R[r];
+
+            // Flags
+            cpuState.SREG.V = false;
+            cpuState.SREG.N = (cpuState.R[d] & (1 << 7)) != 0;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0);
+        }
+
+        private void Ori(ushort opcode)
+        {
+            int k = (opcode & 0x0F) | (opcode >> 4) & 0xF0;
+            int d = ((opcode >> 4) & 0x0F) + 16;
+
+            cpuState.R[d] = (byte)(cpuState.R[d] | k);
+
+            // Flags
+            cpuState.SREG.V = false;
+            cpuState.SREG.N = (cpuState.R[d] & (1 << 7)) != 0;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0);
+        }
+
+        private void Eor(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+            int r = (opcode & 0x0F) | (opcode >> 5) & 0x10;
+
+            cpuState.R[d] ^= cpuState.R[r];
 
             // Flags
             cpuState.SREG.V = false;

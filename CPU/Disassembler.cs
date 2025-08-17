@@ -56,6 +56,18 @@ namespace ATmegaSim.CPU
             {
                 return Andi(opcode1);
             }
+            if ((opcode1 & 0xFC00) == 0x2800)
+            {
+                return Or(opcode1);
+            }
+            if ((opcode1 & 0xF000) == 0x6000)
+            {
+                return Ori(opcode1);
+            }
+            if ((opcode1 & 0xFC00) == 0x2400)
+            {
+                return Eor(opcode1);
+            }
             if ((opcode1 & 0xF000) == 0xE000)
             {
                 return Ldi(opcode1);
@@ -306,6 +318,30 @@ namespace ATmegaSim.CPU
             int d = ((opcode >> 4) & 0x0F) + 16;
 
             return $"ANDI   R{d}, 0x{k:X2}";
+        }
+
+        private string Or(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+            int r = (opcode & 0x0F) | (opcode >> 5) & 0x10;
+
+            return $"OR     R{d}, R{r}";
+        }
+
+        private string Ori(ushort opcode)
+        {
+            int k = (opcode & 0x0F) | (opcode >> 4) & 0xF0;
+            int d = ((opcode >> 4) & 0x0F) + 16;
+
+            return $"ORI    R{d}, 0x{k:X2}";
+        }
+
+        private string Eor(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+            int r = (opcode & 0x0F) | (opcode >> 5) & 0x10;
+
+            return $"EOR    R{d}, R{r}";
         }
 
         private string Ldi(ushort opcode)
