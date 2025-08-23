@@ -76,6 +76,18 @@ namespace ATmegaSim.CPU
             {
                 return Neg(opcode1);
             }
+            if ((opcode1 & 0xFE0F) == 0x9403)
+            {
+                return Inc(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x940A)
+            {
+                return Dec(opcode1);
+            }
+            if ((opcode1 & 0xFF0F) == 0xEF0F)
+            {
+                return Ser(opcode1);
+            }
             if ((opcode1 & 0xF000) == 0xE000)
             {
                 return Ldi(opcode1);
@@ -364,6 +376,27 @@ namespace ATmegaSim.CPU
             int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
 
             return $"NEG    R{d}";
+        }
+
+        private string Inc(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+
+            return $"INC    R{d}";
+        }
+
+        private string Dec(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+
+            return $"DEC    R{d}";
+        }
+
+        private string Ser(ushort opcode)
+        {
+            int d = ((opcode >> 4) & 0x0F) + 16;
+
+            return $"SER    R{d}";
         }
 
         private string Ldi(ushort opcode)

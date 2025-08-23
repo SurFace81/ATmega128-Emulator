@@ -94,6 +94,21 @@ namespace ATmegaSim.CPU
                 Neg(opcode);
                 return 1;
             }
+            if ((opcode & 0xFE0F) == 0x9403)
+            {
+                Inc(opcode);
+                return 1;
+            }
+            if ((opcode & 0xFE0F) == 0x940A)
+            {
+                Dec(opcode);
+                return 1;
+            }
+            if ((opcode & 0xFF0F) == 0xEF0F)
+            {
+                Ser(opcode);
+                return 1;
+            }
             if ((opcode & 0xF000) == 0xE000)
             {
                 Ldi(opcode);
@@ -589,6 +604,41 @@ namespace ATmegaSim.CPU
             cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
             cpuState.SREG.Z = (cpuState.R[d] == 0);
             cpuState.SREG.C = (cpuState.R[d] != 0);
+        }
+
+        private void Inc(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+            int Rd = cpuState.R[d];
+
+            cpuState.R[d] += 1;
+
+            // Flags
+            cpuState.SREG.V = (Rd == 0x7F);
+            cpuState.SREG.N = (cpuState.R[d] & 0x80) != 0;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0);
+        }
+
+        private void Dec(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+            int Rd = cpuState.R[d];
+
+            cpuState.R[d] -= 1;
+
+            // Flags
+            cpuState.SREG.V = (Rd == 0x80);
+            cpuState.SREG.N = (cpuState.R[d] & 0x80) != 0;
+            cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
+            cpuState.SREG.Z = (cpuState.R[d] == 0);
+        }
+
+        private void Ser(ushort opcode)
+        {
+            int d = ((opcode >> 4) & 0x0F) + 16;
+
+            cpuState.R[d] = 0xFF;
         }
 
         private void Ldi(ushort opcode)
