@@ -51,7 +51,7 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>icon_new.ico</ApplicationIcon>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -190,7 +190,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
-    <Content Include="icon_new.ico" />
     <Content Include="Resources\delete.png" />
     <None Include="Resources\pin_off_in.png" />
     <None Include="Resources\pin_off_out.png" />

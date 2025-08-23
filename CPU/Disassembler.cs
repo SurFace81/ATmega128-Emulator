@@ -68,6 +68,14 @@ namespace ATmegaSim.CPU
             {
                 return Eor(opcode1);
             }
+            if ((opcode1 & 0xFE0F) == 0x9400)
+            {
+                return Com(opcode1);
+            }
+            if ((opcode1 & 0xFE0F) == 0x9401)
+            {
+                return Neg(opcode1);
+            }
             if ((opcode1 & 0xF000) == 0xE000)
             {
                 return Ldi(opcode1);
@@ -342,6 +350,20 @@ namespace ATmegaSim.CPU
             int r = (opcode & 0x0F) | (opcode >> 5) & 0x10;
 
             return $"EOR    R{d}, R{r}";
+        }
+
+        private string Com(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+
+            return $"COM    R{d}";
+        }
+
+        private string Neg(ushort opcode)
+        {
+            int d = (opcode >> 4) & 0x0F | (opcode >> 4) & 0x10;
+
+            return $"NEG    R{d}";
         }
 
         private string Ldi(ushort opcode)
