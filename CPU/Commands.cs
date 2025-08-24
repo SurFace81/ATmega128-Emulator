@@ -124,6 +124,16 @@ namespace ATmegaSim.CPU
                 Mul(opcode);
                 return 2;
             }
+            if ((opcode & 0xFF00) == 0x0200)
+            {
+                Muls(opcode);
+                return 2;
+            }
+            if ((opcode & 0xFF88) == 0x0300)
+            {
+                Mulsu(opcode);
+                return 2;
+            }
             if ((opcode & 0xF800) == 0xB800)
             {
                 Out(opcode);
@@ -657,6 +667,40 @@ namespace ATmegaSim.CPU
             byte Rd = cpuState.R[d];
             byte Rr = cpuState.R[r];
             ushort R = (ushort)(Rd * Rr);
+
+            cpuState.R[0] = (byte)(R & 0xFF);
+            cpuState.R[1] = (byte)((R >> 8) & 0xFF);
+
+            // Flags
+            cpuState.SREG.C = ((cpuState.R[1] & 0x80) != 0);
+            cpuState.SREG.Z = (R == 0);
+        }
+
+        private void Muls(ushort opcode)
+        {
+            int d = ((opcode >> 4) & 0x0F) + 16;
+            int r = (opcode & 0x0F) + 16;
+
+            byte Rd = cpuState.R[d];
+            byte Rr = cpuState.R[r];
+            short R = (short)((sbyte)Rd * (sbyte)Rr);
+
+            cpuState.R[0] = (byte)(R & 0xFF);
+            cpuState.R[1] = (byte)((R >> 8) & 0xFF);
+
+            // Flags
+            cpuState.SREG.C = ((cpuState.R[1] & 0x80) != 0);
+            cpuState.SREG.Z = (R == 0);
+        }
+
+        private void Mulsu(ushort opcode)
+        {
+            int d = ((opcode >> 4) & 0x07) + 16;
+            int r = (opcode & 0x07) + 16;
+
+            byte Rd = cpuState.R[d];
+            byte Rr = cpuState.R[r];
+            short R = (short)((sbyte)Rd * (byte)Rr);
 
             cpuState.R[0] = (byte)(R & 0xFF);
             cpuState.R[1] = (byte)((R >> 8) & 0xFF);
