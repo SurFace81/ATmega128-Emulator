@@ -108,6 +108,18 @@ namespace ATmegaSim.CPU
             {
                 return Muls(opcode1);
             }
+            if ((opcode1 & 0xFF88) == 0x0308)
+            {
+                return Fmul(opcode1);
+            }
+            if ((opcode1 & 0xFF88) == 0x0380)
+            {
+                return Fmuls(opcode1);
+            }
+            if ((opcode1 & 0xFF88) == 0x0388)
+            {
+                return Fmulsu(opcode1);
+            }
             if ((opcode1 & 0xF800) == 0xB800)
             {
                 return Out(opcode1);
@@ -437,6 +449,30 @@ namespace ATmegaSim.CPU
             int r = (opcode & 0x07) + 16;
 
             return $"MULSU  R{d}, R{r}";
+        }
+
+        private string Fmul(ushort opcode)
+        {
+            int d = ((opcode >> 4) & 0x07) + 16;
+            int r = (opcode & 0x07) + 16;
+
+            return $"FMUL   R{d}, R{r}";
+        }
+
+        private string Fmuls(ushort opcode)
+        {
+            int d = ((opcode >> 4) & 0x07) + 16;
+            int r = (opcode & 0x07) + 16;
+
+            return $"FMULS  R{d}, R{r}";
+        }
+
+        private string Fmulsu(ushort opcode)
+        {
+            int d = ((opcode >> 4) & 0x07) + 16;
+            int r = (opcode & 0x07) + 16;
+
+            return $"FMULSU R{d}, R{r}";
         }
 
         private string Out(ushort opcode)
