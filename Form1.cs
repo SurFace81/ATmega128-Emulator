@@ -40,21 +40,35 @@ namespace ATmegaSim
 
         private void Atmega128_OnClockCompleted(object sender, EventArgs e)
         {
+            if (IsDisposed || Disposing)
+                return;
+
+            MethodInvoker updateViews = delegate
+            {
+                if (IsDisposed || Disposing)
+                    return;
+                foreach (var regsView in regsViews)
+                    regsView.UpdateRegisters();
+                foreach (var memView in memViews)
+                    memView.UpdateOnClock((int)atmega128.state.PC);
+                foreach (var disView in disViews)
+                    disView.SetProgCntr((int)atmega128.state.PC);
+                foreach (var portView in portsViews)
+                    portView.UpdatePorts();
+            };
+
+            if (!InvokeRequired)
+            {
+                updateViews();
+                return;
+            }
+
             try
             {
-                Invoke((MethodInvoker)delegate
-                {
-                    foreach (var regsView in regsViews)
-                        regsView.UpdateRegisters();
-                    foreach (var memView in memViews)
-                        memView.UpdateOnClock((int)atmega128.state.PC);
-                    foreach (var disView in disViews)
-                        disView.SetProgCntr((int)atmega128.state.PC);
-                    foreach (var portView in portsViews)
-                        portView.UpdatePorts();
-                });
+                BeginInvoke(updateViews);
             }
-            catch { }
+            catch (ObjectDisposedException) { }
+            catch (InvalidOperationException) { }
         }
 
         private bool firmOpened = false;
@@ -90,7 +104,8 @@ namespace ATmegaSim
         {
             if (openFirmDlg.ShowDialog() == DialogResult.OK)
             {
-                firmPathText.Text = openFirmDlg.FileName;
+                Stop();
+                List<byte> currentFirm = HexParser.FirmFile;
                 try
                 {
                     HexParser.Parse(openFirmDlg.FileName);
@@ -101,11 +116,14 @@ namespace ATmegaSim
                     return;
                 }
 
+                int parsedFirmSize = HexParser.FirmFile.Count;
                 if (!atmega128.LoadFirm(HexParser.FirmFile))
                 {
-                    MessageBox.Show($"Размер прошивки {HexParser.FirmFile.Count} байт превышает размер FLASH памяти ATmega128 (128Кб)!");
+                    HexParser.FirmFile = currentFirm;
+                    MessageBox.Show($"Размер прошивки {parsedFirmSize} байт превышает размер FLASH памяти ATmega128 (128Кб)!");
                     return;
                 }
+                firmPathText.Text = openFirmDlg.FileName;
                 if (!clockHooked)
                 {
                     atmega128.OnClockCompleted += Atmega128_OnClockCompleted;
@@ -199,6 +217,7 @@ namespace ATmegaSim
 
         private void resetBtn_Click(object sender, EventArgs e)
         {
+            Stop();
             atmega128?.Reset();
         }
 

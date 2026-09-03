@@ -19,6 +19,7 @@ namespace ATmegaSim.CPU
         public const int IO_SIZE = 0x40;
         public const ushort RAMEND = 0x10FF;
         private int firmSize;
+        private readonly object syncRoot = new object();
 
         private readonly Dictionary<byte, Action<byte>> IOWriteHandlers = new Dictionary<byte, Action<byte>>();
         private readonly Dictionary<byte, Func<byte>> IOReadHandlers = new Dictionary<byte, Func<byte>>();
@@ -53,14 +54,18 @@ namespace ATmegaSim.CPU
             if (firmFile == null) return false;
             if (firmFile.Count > FLASH_SIZE) return false;
 
-            // Залить FLASH 0xFF чтобы хвост старой прошивки не оставался
-            for (int i = 0; i < FLASH_SIZE; i++) state.FLASH[i] = 0xFF;
+            lock (syncRoot)
+            {
+                // Залить FLASH 0xFF чтобы хвост старой прошивки не оставался
+                for (int i = 0; i < FLASH_SIZE; i++) state.FLASH[i] = 0xFF;
 
-            byte[] temp = firmFile.ToArray();
-            firmSize = temp.Length;
-            Array.Copy(temp, 0, state.FLASH, 0, temp.Length);
+                byte[] temp = firmFile.ToArray();
+                firmSize = temp.Length;
+                Array.Copy(temp, 0, state.FLASH, 0, temp.Length);
+                ResetCore();
+            }
 
-            Reset();
+            InvokeOnClockCompleted();
             return true;
         }
 
@@ -68,14 +73,32 @@ namespace ATmegaSim.CPU
         {
             // Шаг по инструкции, а не по такту: выполнить первое слово
             // и дождаться multi-cycle хвоста (cyclesToWait), не задевая reset-тикт.
-            OnClock();
-            while (cyclesToWait > 1 && !_shouldReset)
+            int completedClocks = 0;
+            lock (syncRoot)
             {
-                OnClock();
+                OnClockCore();
+                completedClocks++;
+                while (cyclesToWait > 1 && !_shouldReset)
+                {
+                    OnClockCore();
+                    completedClocks++;
+                }
             }
+
+            for (int i = 0; i < completedClocks; i++) InvokeOnClockCompleted();
         }
 
         public void Reset()
+        {
+            lock (syncRoot)
+            {
+                ResetCore();
+            }
+
+            InvokeOnClockCompleted();
+        }
+
+        private void ResetCore()
         {
             state.PC = 0;
             state.CYCLES = 0;
@@ -99,8 +122,6 @@ namespace ATmegaSim.CPU
             _shouldReset = false;
             cyclesToWait = 0;
             // FLASH и firmSize не трогаем
-
-            InvokeOnClockCompleted();
         }
 
         private void InitializeIOHandlers()
@@ -152,16 +173,14 @@ namespace ATmegaSim.CPU
             IOReadHandlers[0x00] = () => state.PORTF.ReadPin();
 
             // PORTF/G в Extended IO (только LD/ST/LDS/STS, не IN/OUT):
-            // data 0x60 PINF(зеркало? оставлено для совместимости, основной PINF - IO 0x00),
-            // data 0x61 DDRF, 0x62 PORTF, 0x63 PING, 0x64 DDRG, 0x65 PORTG.
+            // data 0x60 reserved; data 0x61 DDRF, 0x62 PORTF,
+            // data 0x63 PING, 0x64 DDRG, 0x65 PORTG.
             // Ключ словарей - extAddr = dataAddr - 0x60.
             ExtIOWriteHandlers[0x01] = value => state.PORTF.WriteDDR(value);   // DDRF
             ExtIOWriteHandlers[0x02] = value => state.PORTF.WritePort(value);  // PORTF
-            ExtIOWriteHandlers[0x00] = value => state.PORTF.WritePort((byte)(state.PORTF.PORT ^ value)); // PINF alias toggle
             ExtIOWriteHandlers[0x03] = value => state.PORTG.WritePort((byte)(state.PORTG.PORT ^ value)); // PING toggle
             ExtIOWriteHandlers[0x04] = value => state.PORTG.WriteDDR(value);   // DDRG
             ExtIOWriteHandlers[0x05] = value => state.PORTG.WritePort(value);  // PORTG
-            ExtIOReadHandlers[0x00] = () => state.PORTF.ReadPin();  // PINF alias
             ExtIOReadHandlers[0x01] = () => state.PORTF.DDR;
             ExtIOReadHandlers[0x02] = () => state.PORTF.PORT;
             ExtIOReadHandlers[0x03] = () => state.PORTG.ReadPin();  // PING
@@ -264,19 +283,26 @@ namespace ATmegaSim.CPU
         int cyclesToWait = 0;
         public void OnClock()
         {
+            lock (syncRoot)
+            {
+                OnClockCore();
+            }
+
+            InvokeOnClockCompleted();
+        }
+
+        private void OnClockCore()
+        {
             state.CYCLES += 1;
             if (cyclesToWait > 1)
             {
-                InvokeOnClockCompleted();
                 cyclesToWait -= 1;
                 return;
             }
 
             if (_shouldReset)
             {
-                Reset();
-                _shouldReset = false;
-                InvokeOnClockCompleted();
+                ResetCore();
                 return;
             }
 
@@ -286,7 +312,6 @@ namespace ATmegaSim.CPU
             // PC=target-2, 2-словные делают внутренний PC+=2 — внешний PC+=2 не меняем).
             if (state.PC + 1u >= (uint)FLASH_SIZE)
             {
-                InvokeOnClockCompleted();
                 _shouldReset = true;
                 return;
             }
@@ -295,9 +320,6 @@ namespace ATmegaSim.CPU
             // Commands мутирует SREG struct напрямую — синхронизировать байт для UI/MemoryView
             state.IORegs[0x3F] = state.GetSregByte();
             state.PC += 2;
-
-            InvokeOnClockCompleted();
-
         }
 
         public ushort GetOpcodeAt(uint pntr)

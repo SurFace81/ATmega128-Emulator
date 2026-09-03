@@ -20,7 +20,8 @@ namespace ATmegaSim.CPU
 
         public byte ReadPin()
         {
-            return (byte)(((PIN & ~DDR) | (PORT & DDR)) & mask);
+            // A zero external input cannot distinguish a floating pin from one driven low.
+            return (byte)(((PORT & DDR) | ((PIN | PORT) & ~DDR)) & mask);
         }
 
         public void WritePort(byte value)

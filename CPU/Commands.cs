@@ -651,22 +651,19 @@ namespace ATmegaSim.CPU
 
             int Rd = cpuState.R[d];
             int Rr = cpuState.R[r];
-            cpuState.R[d] = (byte)(Rd - Rr - Convert.ToInt32(cpuState.SREG.C));
+            int carry = cpuState.SREG.C ? 1 : 0;
+            bool oldZ = cpuState.SREG.Z;
+            int subtrahend = Rr + carry;
+            int result = Rd - subtrahend;
+            byte R = (byte)result;
+            cpuState.R[d] = R;
 
-            // Flags
-            bool Rd3 = (Rd & (1 << 3)) != 0;
-            bool Rr3 = (Rr & (1 << 3)) != 0;
-            bool R3 = (cpuState.R[d] & (1 << 3)) != 0;
-            bool Rd7 = (Rd & (1 << 7)) != 0;
-            bool Rr7 = (Rr & (1 << 7)) != 0;
-            bool R7 = (cpuState.R[d] & (1 << 7)) != 0;
-
-            cpuState.SREG.H = (!Rd3 && Rr3) || (Rr3 && R3) || (R3 && !Rd3);
-            cpuState.SREG.V = (Rd7 && !Rr7 && !R7) || (!Rd7 && Rr7 && R7);
-            cpuState.SREG.N = R7;
+            cpuState.SREG.H = ((Rd & 0x0F) - ((Rr & 0x0F) + carry)) < 0;
+            cpuState.SREG.V = ((Rd ^ Rr) & (Rd ^ R) & 0x80) != 0;
+            cpuState.SREG.N = (R & 0x80) != 0;
             cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
-            cpuState.SREG.Z = (cpuState.R[d] == 0) && cpuState.SREG.Z;
-            cpuState.SREG.C = (!Rd7 && Rr7) || (Rr7 && R7) || (R7 && !Rd7);
+            cpuState.SREG.Z = oldZ && R == 0;
+            cpuState.SREG.C = result < 0;
         }
 
         private void Sbci(ushort opcode)
@@ -1269,16 +1266,16 @@ namespace ATmegaSim.CPU
         {
             int r = (opcode & 0x1F0) >> 4;
 
-            cpuState.SP = (ushort)(cpuState.SP - 1);
             cpu.SetDataMem(cpuState.SP, cpuState.R[r]);
+            cpuState.SP = (ushort)(cpuState.SP - 1);
         }
 
         private void Pop(ushort opcode)
         {
             int d = (opcode & 0x1F0) >> 4;
 
-            cpuState.R[d] = cpu.GetDataMem(cpuState.SP);
             cpuState.SP = (ushort)(cpuState.SP + 1);
+            cpuState.R[d] = cpu.GetDataMem(cpuState.SP);
         }
 
         // ---------- Сравнения и пропуски ----------
@@ -1316,21 +1313,18 @@ namespace ATmegaSim.CPU
 
             int Rd = cpuState.R[d];
             int Rr = cpuState.R[r];
-            byte R = (byte)(Rd - Rr - Convert.ToInt32(cpuState.SREG.C));
+            int carry = cpuState.SREG.C ? 1 : 0;
+            bool oldZ = cpuState.SREG.Z;
+            int subtrahend = Rr + carry;
+            int result = Rd - subtrahend;
+            byte R = (byte)result;
 
-            bool Rd3 = (Rd & (1 << 3)) != 0;
-            bool Rr3 = (Rr & (1 << 3)) != 0;
-            bool R3 = (R & (1 << 3)) != 0;
-            bool Rd7 = (Rd & (1 << 7)) != 0;
-            bool Rr7 = (Rr & (1 << 7)) != 0;
-            bool R7 = (R & (1 << 7)) != 0;
-
-            cpuState.SREG.H = (!Rd3 && Rr3) || (Rr3 && R3) || (R3 && !Rd3);
-            cpuState.SREG.V = (Rd7 && !Rr7 && !R7) || (!Rd7 && Rr7 && R7);
-            cpuState.SREG.N = R7;
+            cpuState.SREG.H = ((Rd & 0x0F) - ((Rr & 0x0F) + carry)) < 0;
+            cpuState.SREG.V = ((Rd ^ Rr) & (Rd ^ R) & 0x80) != 0;
+            cpuState.SREG.N = (R & 0x80) != 0;
             cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
-            cpuState.SREG.Z = (R == 0) && cpuState.SREG.Z;
-            cpuState.SREG.C = (!Rd7 && Rr7) || (Rr7 && R7) || (R7 && !Rd7);
+            cpuState.SREG.Z = oldZ && R == 0;
+            cpuState.SREG.C = result < 0;
         }
 
         private void Cpi(ushort opcode)
@@ -1532,20 +1526,21 @@ namespace ATmegaSim.CPU
 
         private void Rol(ushort opcode)
         {
-            // ROL == ADC Rd,Rd. R=(Rd<<1)|C_old, H=Rd3_old, C=Rd7_old.
+            // ROL == ADC Rd,Rd.
             int d = (opcode >> 4) & 0x1F;
             byte Rd = cpuState.R[d];
             bool cOld = cpuState.SREG.C;
-            byte R = (byte)((Rd << 1) | (cOld ? 1 : 0));
+            bool oldZ = cpuState.SREG.Z;
+            int sum = Rd + Rd + (cOld ? 1 : 0);
+            byte R = (byte)sum;
             cpuState.R[d] = R;
 
-            bool c = (Rd & 0x80) != 0;
-            cpuState.SREG.H = (Rd & 0x08) != 0;
+            cpuState.SREG.H = ((Rd & 0x0F) + (Rd & 0x0F) + (cOld ? 1 : 0)) > 0x0F;
             cpuState.SREG.N = (R & 0x80) != 0;
-            cpuState.SREG.V = cpuState.SREG.N ^ c;
+            cpuState.SREG.V = ((Rd ^ R) & 0x80) != 0;
             cpuState.SREG.S = cpuState.SREG.N ^ cpuState.SREG.V;
-            cpuState.SREG.Z = (R == 0);
-            cpuState.SREG.C = c;
+            cpuState.SREG.Z = oldZ && R == 0;
+            cpuState.SREG.C = sum > 0xFF;
         }
 
         private void Ror(ushort opcode)
@@ -1648,18 +1643,20 @@ namespace ATmegaSim.CPU
             ushort retWordAddr = (ushort)(retByteAddr >> 1);
             byte hi = (byte)(retWordAddr >> 8);
             byte lo = (byte)retWordAddr;
-            cpuState.SP = (ushort)(cpuState.SP - 1);
+            // PUSH stores then decrements: low at SP, high at SP-1. POP increments
+            // then reads, so RET obtains high first and then low to reconstruct PC.
             cpu.SetDataMem(cpuState.SP, lo);
             cpuState.SP = (ushort)(cpuState.SP - 1);
             cpu.SetDataMem(cpuState.SP, hi);
+            cpuState.SP = (ushort)(cpuState.SP - 1);
         }
 
         private uint PopReturnAddress()
         {
-            byte lo = cpu.GetDataMem(cpuState.SP);
             cpuState.SP = (ushort)(cpuState.SP + 1);
             byte hi = cpu.GetDataMem(cpuState.SP);
             cpuState.SP = (ushort)(cpuState.SP + 1);
+            byte lo = cpu.GetDataMem(cpuState.SP);
             return (uint)(((hi << 8) | lo) * 2);
         }
 
@@ -1713,17 +1710,17 @@ namespace ATmegaSim.CPU
 
         private void Sleep(ushort opcode)
         {
-            // Заглушка как NOP.
+            // Hardware sleep is not modeled; this documented stub has no behavior.
         }
 
         private void Wdr(ushort opcode)
         {
-            // Заглушка как NOP.
+            // Hardware watchdog reset is not modeled; this documented stub has no behavior.
         }
 
         private void Spm(ushort opcode)
         {
-            // Заглушка: запись во FLASH не эмулируется, как NOP.
+            // Hardware self-programming is not modeled; this documented stub has no behavior.
         }
     }
 }

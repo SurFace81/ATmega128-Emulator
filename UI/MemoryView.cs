@@ -37,9 +37,9 @@ namespace ATmegaSim.UI
 
         public void DisplayFirm(List<byte> firm)
         {
-            if (memZoneCb.SelectedIndex != CODE_MEM) return;
-            
             this.firm = firm;
+            if (memZoneCb.SelectedIndex != CODE_MEM) return;
+
             if (firm != null)
             {
                 DisplayMemory(firm, Cpu.FLASH_SIZE);

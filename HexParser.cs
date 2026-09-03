@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using ATmegaSim.CPU;
 
 namespace ATmegaSim
 {
@@ -13,39 +14,63 @@ namespace ATmegaSim
 
         public static void Parse(string path)
         {
-            _baseLinearAddress = 0; // Сбрасываем базовый адрес для нового файла
-            FirmFile.Clear(); // Очищаем FirmFile перед новым парсингом
+            _baseLinearAddress = 0;
+            var parsedFirmFile = new List<byte>();
+            bool eofFound = false;
 
             foreach (string temp in File.ReadAllLines(path))
             {
-                if (string.IsNullOrEmpty(temp) || !temp.StartsWith(":"))
+                string record = temp.Trim();
+                if (record.Length == 0)
                 {
                     continue;
                 }
-                string line = temp.TrimStart(new char[] { ':' });
+                if (eofFound)
+                    throw new InvalidDataException("После записи EOF обнаружены дополнительные записи.");
+                if (!record.StartsWith(":"))
+                    throw new InvalidDataException("Некорректная HEX-запись.");
 
-                HexLine hexLine = new HexLine(line);
+                HexLine hexLine = new HexLine(record.Substring(1));
 
                 switch (hexLine.type)
                 {
-                    case 0x00: // Data Record
-                        uint currentAbsoluteAddress = _baseLinearAddress + (uint)hexLine.address;
-                        while (FirmFile.Count <= currentAbsoluteAddress + hexLine.len - 1)
+                case 0x00: // Data Record
+                        ulong currentAbsoluteAddress = (ulong)_baseLinearAddress + hexLine.address;
+                        ulong endAddress = currentAbsoluteAddress + hexLine.len;
+                        if (currentAbsoluteAddress > Cpu.FLASH_SIZE || endAddress > Cpu.FLASH_SIZE)
+                            throw new InvalidDataException("Адрес записи HEX выходит за пределы FLASH памяти.");
+
+                        while (parsedFirmFile.Count < (int)endAddress)
                         {
-                            FirmFile.Add(0xFF); // Заполняем FF до нужного размера
+                            parsedFirmFile.Add(0xFF);
                         }
                         for (int i = 0; i < hexLine.len; i++)
                         {
-                            FirmFile[(int)(currentAbsoluteAddress + i)] = hexLine.data[i];
+                            parsedFirmFile[(int)currentAbsoluteAddress + i] = hexLine.data[i];
                         }
                         break;
                     case 0x01: // End Of File Record
-                        return;
+                        if (hexLine.len != 0 || hexLine.address != 0)
+                            throw new InvalidDataException("Некорректная запись EOF.");
+                        eofFound = true;
+                        break;
+                    case 0x02: // Extended Segment Address Record
+                        if (hexLine.len != 2)
+                            throw new InvalidDataException("Некорректная длина записи Extended Segment Address.");
+                        _baseLinearAddress = (uint)((hexLine.data[0] << 8) | hexLine.data[1]) << 4;
+                        break;
                     case 0x04: // Extended Linear Address Record
+                        if (hexLine.len != 2)
+                            throw new InvalidDataException("Некорректная длина записи Extended Linear Address.");
                         _baseLinearAddress = (uint)((hexLine.data[0] << 8) | hexLine.data[1]) << 16;
                         break;
                 }
             }
+
+            if (!eofFound)
+                throw new InvalidDataException("В HEX-файле отсутствует запись EOF.");
+
+            FirmFile = parsedFirmFile;
         }
     }
 
@@ -58,28 +83,38 @@ namespace ATmegaSim
 
         public HexLine(string str)
         {
-            if (str.Length < 10) // Минимальная длина: len (2) + address (4) + type (2) + checksum (2)
+            if (str.Length < 10)
             {
-                throw new FormatException("Некорректная длина HEX-строки.");
+                throw new InvalidDataException("Некорректная длина HEX-строки.");
             }
 
-            len = byte.Parse(str.Substring(0, 2), NumberStyles.HexNumber);
-            address = ushort.Parse(str.Substring(2, 4), NumberStyles.HexNumber);
-            type = byte.Parse(str.Substring(6, 2), NumberStyles.HexNumber);
-
-            data = new List<byte>(len);
-            int dataStartIndex = 8;
-            for (int i = 0; i < len; i++)
+            try
             {
-                data.Add(byte.Parse(str.Substring(dataStartIndex + (i * 2), 2), NumberStyles.HexNumber));
+                len = byte.Parse(str.Substring(0, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                if (str.Length != 10 + len * 2)
+                    throw new InvalidDataException("Некорректная длина HEX-строки.");
+
+                address = ushort.Parse(str.Substring(2, 4), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                type = byte.Parse(str.Substring(6, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+
+                data = new List<byte>(len);
+                int dataStartIndex = 8;
+                for (int i = 0; i < len; i++)
+                {
+                    data.Add(byte.Parse(str.Substring(dataStartIndex + (i * 2), 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture));
+                }
+
+                byte checksumFromFile = byte.Parse(str.Substring(dataStartIndex + (len * 2), 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                byte calculatedChecksum = CalculateChecksum();
+
+                if (checksumFromFile != calculatedChecksum)
+                {
+                    throw new InvalidDataException($"Неверная контрольная сумма. Ожидалось 0x{calculatedChecksum:X2}, получено 0x{checksumFromFile:X2}.");
+                }
             }
-
-            byte checksumFromFile = byte.Parse(str.Substring(dataStartIndex + (len * 2), 2), NumberStyles.HexNumber);
-            byte calculatedChecksum = CalculateChecksum();
-
-            if (checksumFromFile != calculatedChecksum)
+            catch (FormatException ex)
             {
-                throw new InvalidDataException($"Неверная контрольная сумма. Ожидалось 0x{calculatedChecksum:X2}, получено 0x{checksumFromFile:X2}.");
+                throw new InvalidDataException("Некорректная HEX-запись.", ex);
             }
         }
 

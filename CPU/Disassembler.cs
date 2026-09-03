@@ -256,7 +256,7 @@ namespace ATmegaSim.CPU
             {
                 return St6(opcode1);
             }
-            if ((opcode1 & 0xD208) == 0x8208 && (((opcode1 & 0x000F) != 0x0000) || ((opcode1 & 0x0F00) != 0b0010)))
+            if ((opcode1 & 0xD208) == 0x8208 && (((opcode1 & 0x000F) != 0x0000) || ((opcode1 & 0xF000) != 0b1000)))
             {
                 return St7(opcode1);
             }
@@ -902,13 +902,13 @@ namespace ATmegaSim.CPU
 
         private string Jmp(ushort opcode1, ushort opcode2)
         {
-            // 22-бит word-адрес, для mega128 — младшие 16 бит. Показываем байт-адрес.
+            // 22-бит word-адрес, для mega128 — младшие 16 бит.
             int k22 = (int)opcode2
                 | (((int)opcode1 & 0x01) << 16)
                 | ((((int)opcode1 & 0x01F0) << 13) & 0x3F0000);
             int k16 = k22 & 0xFFFF;
 
-            return $"JMP    0x{(k16 << 1):X}";
+            return $"JMP    0x{k16:X}";
         }
 
         private string Call(ushort opcode1, ushort opcode2)
@@ -918,7 +918,7 @@ namespace ATmegaSim.CPU
                 | ((((int)opcode1 & 0x01F0) << 13) & 0x3F0000);
             int k16 = k22 & 0xFFFF;
 
-            return $"CALL   0x{(k16 << 1):X}";
+            return $"CALL   0x{k16:X}";
         }
 
         private string Out(ushort opcode)
