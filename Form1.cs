@@ -47,9 +47,9 @@ namespace ATmegaSim
                     foreach (var regsView in regsViews)
                         regsView.UpdateRegisters();
                     foreach (var memView in memViews)
-                        memView.UpdateOnClock(atmega128.state.PC);
+                        memView.UpdateOnClock((int)atmega128.state.PC);
                     foreach (var disView in disViews)
-                        disView.SetProgCntr(atmega128.state.PC);
+                        disView.SetProgCntr((int)atmega128.state.PC);
                     foreach (var portView in portsViews)
                         portView.UpdatePorts();
                 });
@@ -58,6 +58,7 @@ namespace ATmegaSim
         }
 
         private bool firmOpened = false;
+        private bool clockHooked = false;
         private void runBtn_Click(object sender, EventArgs e)
         {
             if (!firmOpened)
@@ -90,15 +91,27 @@ namespace ATmegaSim
             if (openFirmDlg.ShowDialog() == DialogResult.OK)
             {
                 firmPathText.Text = openFirmDlg.FileName;
-                HexParser.Parse(openFirmDlg.FileName);
+                try
+                {
+                    HexParser.Parse(openFirmDlg.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка разбора HEX: " + ex.Message);
+                    return;
+                }
 
                 if (!atmega128.LoadFirm(HexParser.FirmFile))
                 {
                     MessageBox.Show($"Размер прошивки {HexParser.FirmFile.Count} байт превышает размер FLASH памяти ATmega128 (128Кб)!");
                     return;
                 }
-                atmega128.OnClockCompleted += Atmega128_OnClockCompleted;
-                systemClock.Register(atmega128);
+                if (!clockHooked)
+                {
+                    atmega128.OnClockCompleted += Atmega128_OnClockCompleted;
+                    systemClock.Register(atmega128);
+                    clockHooked = true;
+                }
 
                 foreach (var memView in memViews)
                     memView.DisplayFirm(HexParser.FirmFile);
@@ -204,6 +217,14 @@ namespace ATmegaSim
             }
 
             systemClock.ChangeClockDelay(Convert.ToInt32(delayTextBox.Text));
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F10)
+            {
+                atmega128?.Step();
+            }
         }
     }
 }

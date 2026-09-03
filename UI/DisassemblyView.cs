@@ -33,8 +33,12 @@ namespace ATmegaSim.UI
             int line = 0;
             for (int i = 0; i < mem.Count;)
             {
+                if (i + 1 >= mem.Count)
+                    break;
                 ushort opcode1 = (ushort)((mem[i + 1] << 8) | mem[i]);
                 int length = GetInstructionLength(opcode1);
+                if (length == 2 && i + 3 >= mem.Count)
+                    length = 1;
 
                 ushort opcode2 = 0;
                 if (length == 2)
@@ -57,7 +61,7 @@ namespace ATmegaSim.UI
             //}
 
             disasmTextBox.Text = sb.ToString();
-            SetProgCntr(cpu.state.PC);
+            SetProgCntr((int)cpu.state.PC);
         }
 
         public int GetInstructionLength(ushort opcode)

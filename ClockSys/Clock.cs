@@ -22,7 +22,8 @@ namespace ATmegaSim.ClockSys
 
         public void Tick(object sender, System.Timers.ElapsedEventArgs e)
         {
-            foreach (var s in subscribers)
+            TotalCycles += 1;
+            foreach (var s in subscribers.ToArray())
             {
                 s.OnClock();
             }
@@ -35,7 +36,13 @@ namespace ATmegaSim.ClockSys
 
         public void Register(IClockSink sink)
         {
-            subscribers.Add(sink);
+            if (!subscribers.Contains(sink))
+                subscribers.Add(sink);
+        }
+
+        public void Unregister(IClockSink sink)
+        {
+            subscribers.Remove(sink);
         }
 
         public void Start()

@@ -25,6 +25,8 @@ namespace ATmegaSim.UI
             portCControl.OnPinsStateChanged += PortCControl_OnPinsStateChanged;
             portDControl.OnPinsStateChanged += PortDControl_OnPinsStateChanged;
             portEControl.OnPinsStateChanged += PortEControl_OnPinsStateChanged;
+            portFControl.OnPinsStateChanged += PortFControl_OnPinsStateChanged;
+            portGControl.OnPinsStateChanged += PortGControl_OnPinsStateChanged;
         }
 
         private void PortAControl_OnPinsStateChanged(object sender, byte e)
@@ -47,15 +49,24 @@ namespace ATmegaSim.UI
         {
             cpuState.PORTE.SetExternalInput(e);
         }
+        private void PortFControl_OnPinsStateChanged(object sender, byte e)
+        {
+            cpuState.PORTF.SetExternalInput(e);
+        }
+        private void PortGControl_OnPinsStateChanged(object sender, byte e)
+        {
+            cpuState.PORTG.SetExternalInput(e);
+        }
 
         public void UpdatePorts()
         {
-            // TODO: Надо бы сделать обозначения для разных направлений
             portAControl.SetPins(cpuState.PORTA.ReadPin(), cpuState.PORTA.DDR);
             portBControl.SetPins(cpuState.PORTB.ReadPin(), cpuState.PORTB.DDR);
             portCControl.SetPins(cpuState.PORTC.ReadPin(), cpuState.PORTC.DDR);
             portDControl.SetPins(cpuState.PORTD.ReadPin(), cpuState.PORTD.DDR);
             portEControl.SetPins(cpuState.PORTE.ReadPin(), cpuState.PORTE.DDR);
+            portFControl.SetPins(cpuState.PORTF.ReadPin(), cpuState.PORTF.DDR);
+            portGControl.SetPins(cpuState.PORTG.ReadPin(), cpuState.PORTG.DDR);
         }
     }
 }

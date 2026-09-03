@@ -38,14 +38,17 @@ namespace ATmegaSim.UI
         {
             if (sender is PictureBox s)
             {
-                byte offset = (byte)(1 << Convert.ToInt32(s.Tag));
-                bool newState = s.BackgroundImage != truePicIn;
-                s.BackgroundImage = newState ? truePicIn : falsePicIn;
+                int idx = Convert.ToInt32(s.Tag);
+                byte offset = (byte)(1 << idx);
+                bool curState = ((pins >> idx) & 1) == 1;
+                bool newState = !curState;
 
                 if (newState)
                     pins |= offset;
                 else
-                    pins &= offset;
+                    pins &= (byte)~offset;
+
+                RefreshPins();
             }
 
             InvokeOnPinsStateChanged(pins);
@@ -63,7 +66,11 @@ namespace ATmegaSim.UI
             for (int i = 0; i < 8; i++)
             {
                 bool isSet = ((pins >> i) & 1) == 1;
-                pinBoxes[i].BackgroundImage = isSet ? truePicIn : falsePicIn;
+                bool isOut = ((ddrMask >> i) & 1) == 1;
+                if (isOut)
+                    pinBoxes[i].BackgroundImage = isSet ? truePicOut : falsePicOut;
+                else
+                    pinBoxes[i].BackgroundImage = isSet ? truePicIn : falsePicIn;
             }
         }
 

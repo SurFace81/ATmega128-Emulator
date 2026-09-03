@@ -61,7 +61,8 @@ namespace ATmegaSim.UI
             data.AddRange(cpuState.IORegs);
             data.AddRange(cpuState.ExtIORegs);
             data.AddRange(cpuState.SRAM);
-            DisplayMemory(data, Cpu.DATA_SIZE);
+            // CPU state has the register file, IO and the 4 KiB internal SRAM.
+            DisplayMemory(data, data.Count);
         }
 
         private void DisplayMemory(IReadOnlyList<byte> data, int limit)
